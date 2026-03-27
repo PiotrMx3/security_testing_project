@@ -50,6 +50,7 @@ namespace DungeonGame
                 return false;
 
             CurrentRoom.Items.Remove(item);
+
             return true;
         }
     }
