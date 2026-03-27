@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 678.6" width="680" style="max-height: 500px" height="678.6">
+<defs>
+  <marker orient="auto-start-reverse" markerHeight="6" markerWidth="6" refY="5" refX="8" viewBox="0 0 10 10" id="arrow">
+    <path stroke-linejoin="round" stroke-linecap="round" stroke-width="1.5" stroke="#aaa" fill="none" d="M2 1L8 5L2 9"/>
+  </marker>
+  <marker orient="auto-start-reverse" markerHeight="6" markerWidth="6" refY="5" refX="8" viewBox="0 0 10 10" id="arrow-red">
+    <path stroke-linejoin="round" stroke-linecap="round" stroke-width="1.5" stroke="#c0392b" fill="none" d="M2 1L8 5L2 9"/>
+  </marker>
+  <style>
+    text { font-family: sans-serif; }
+    .title { font-size: 16px; font-weight: 700; fill: #f0ece0; }
+    .room-title { font-size: 15px; font-weight: 700; }
+    .room-body  { font-size: 12px; font-weight: 400; }
+    .lbl        { font-size: 11px; fill: #b0a898; }
+  </style>
+</defs>
+
+
+<rect fill="#111111" height="900" width="680"/>
+
+
+<text text-anchor="middle" y="34" x="340" class="title">Dungeon — room &amp; class sketch (C#)</text>
+
+
+
+
+<rect stroke-width="1" stroke="#6a6a6a" fill="#4a4a4a" rx="12" height="120" width="185" y="55" x="20"/>
+<text fill="#e8e0d0" text-anchor="middle" y="82" x="112" class="room-title">1. Entrance</text>
+<text fill="#b8b0a0" text-anchor="middle" y="102" x="112" class="room-body">Items: Torch, OldMap</text>
+<text fill="#b8b0a0" text-anchor="middle" y="119" x="112" class="room-body">Monster: none</text>
+<text fill="#b8b0a0" text-anchor="middle" y="136" x="112" class="room-body">Exits: → Armory</text>
+<text fill="#b8b0a0" text-anchor="middle" y="153" x="112" class="room-body">↓ PillarHall</text>
+
+
+<rect stroke-width="1" stroke="#8b4030" fill="#6b3020" rx="12" height="120" width="185" y="55" x="248"/>
+<text fill="#f0d0c0" text-anchor="middle" y="82" x="340" class="room-title">2. Armory</text>
+<text fill="#d8b8a8" text-anchor="middle" y="102" x="340" class="room-body">Items: Sword, Shield</text>
+<text fill="#d8b8a8" text-anchor="middle" y="119" x="340" class="room-body">Monster: Skeleton</text>
+<text fill="#d8b8a8" text-anchor="middle" y="136" x="340" class="room-body">Exits: ← Entrance</text>
+<text fill="#d8b8a8" text-anchor="middle" y="153" x="340" class="room-body">→ Crypt</text>
+
+
+<rect stroke-width="1" stroke="#4e40a0" fill="#2e2060" rx="12" height="120" width="185" y="55" x="476"/>
+<text fill="#d0c8f8" text-anchor="middle" y="82" x="568" class="room-title">3. Crypt</text>
+<text fill="#b8b0e0" text-anchor="middle" y="102" x="568" class="room-body">Items: GoldenKey</text>
+<text fill="#b8b0e0" text-anchor="middle" y="119" x="568" class="room-body">Monster: Ghost</text>
+<text fill="#b8b0e0" text-anchor="middle" y="136" x="568" class="room-body">Exits: ← Armory</text>
+<text fill="#b8b0e0" text-anchor="middle" y="153" x="568" class="room-body">↓ MonsterRoom</text>
+
+
+<line marker-start="url(#arrow)" marker-end="url(#arrow)" stroke-width="1.2" stroke="#888" y2="115" x2="248" y1="115" x1="205"/>
+
+<line marker-start="url(#arrow)" marker-end="url(#arrow)" stroke-width="1.2" stroke="#888" y2="115" x2="476" y1="115" x1="433"/>
+
+
+
+
+<rect stroke-width="1" stroke="#6a6a6a" fill="#4a4a4a" rx="12" height="130" width="185" y="300" x="20"/>
+<text fill="#e8e0d0" text-anchor="middle" y="326" x="112" class="room-title">4. PillarHall</text>
+<text fill="#b8b0a0" text-anchor="middle" y="346" x="112" class="room-body">Items: HealthPotion</text>
+<text fill="#b8b0a0" text-anchor="middle" y="363" x="112" class="room-body">Trap: -10 HP on entry</text>
+<text fill="#b8b0a0" text-anchor="middle" y="380" x="112" class="room-body">Exits: ↑ Entrance</text>
+<text fill="#b8b0a0" text-anchor="middle" y="397" x="112" class="room-body">→ MonsterRoom</text>
+<text fill="#b8b0a0" text-anchor="middle" y="414" x="112" class="room-body"/>
+
+
+<rect stroke-width="1" stroke="#8a2020" fill="#5a1515" rx="12" height="150" width="185" y="290" x="248"/>
+<text fill="#f0c0c0" text-anchor="middle" y="318" x="340" class="room-title">5. MonsterRoom</text>
+<text fill="#d0a0a0" text-anchor="middle" y="338" x="340" class="room-body">Items: none</text>
+<text fill="#d0a0a0" text-anchor="middle" y="355" x="340" class="room-body">Monster: Troll</text>
+<text fill="#d0a0a0" text-anchor="middle" y="372" x="340" class="room-body">Needs: Sword to win</text>
+<text fill="#d0a0a0" text-anchor="middle" y="389" x="340" class="room-body">Exits: ↓ Treasure (if won)</text>
+
+
+<line marker-start="url(#arrow)" marker-end="url(#arrow)" stroke-width="1.2" stroke="#888" y2="300" x2="112" y1="175" x1="112"/>
+
+
+<line marker-start="url(#arrow)" marker-end="url(#arrow)" stroke-width="1.2" stroke="#888" y2="365" x2="248" y1="365" x1="205"/>
+
+
+<path marker-end="url(#arrow)" stroke-width="1.2" stroke="#888" fill="none" d="M 568 175 L 568 260 L 433 350"/>
+<text y="255" x="500" class="lbl">from Crypt</text>
+
+
+
+
+<rect stroke-width="1" stroke="#8a6000" fill="#4a3000" rx="12" height="130" width="185" y="530" x="248"/>
+<text fill="#f0d080" text-anchor="middle" y="558" x="340" class="room-title">6. TreasureRoom</text>
+<text fill="#c8a840" text-anchor="middle" y="578" x="340" class="room-body">Locked: needs GoldenKey</text>
+<text fill="#c8a840" text-anchor="middle" y="595" x="340" class="room-body">Items: Treasure</text>
+<text fill="#c8a840" text-anchor="middle" y="612" x="340" class="room-body">Monster: none</text>
+<text fill="#c8a840" text-anchor="middle" y="629" x="340" class="room-body">→ GAME WIN</text>
+
+
+<line marker-end="url(#arrow-red)" stroke-dasharray="7 4" stroke-width="1.5" stroke="#c0392b" y2="530" x2="340" y1="440" x1="340"/>
+<text y="492" x="350" class="lbl">if Troll dead</text>
+
+
+<text fill="#e8e0d0" font-weight="700" font-size="13" text-anchor="middle" y="698" x="340">🏆  Pick up Treasure → Player.IsWinner = true</text>
+
+
+<rect stroke-width="1" stroke="#444" fill="#1c1c1c" rx="10" height="162" width="640" y="718" x="20"/>
+<text fill="#e8e0d0" font-weight="700" font-size="13" text-anchor="middle" y="742" x="340">C# class sketch</text>
+<text fill="#b0a898" font-size="11" y="763" x="34">Item { string Name; bool IsKey; bool IsWeapon; }</text>
+<text fill="#b0a898" font-size="11" y="780" x="34">Monster { string Name; bool IsAlive; bool RequiresWeapon; }</text>
+<text fill="#b0a898" font-size="11" y="797" x="34">Room { string Name; List&lt;Item&gt; Items; Monster? Monster; bool HasTrap; Dictionary&lt;string, Room&gt; Exits; }</text>
+<text fill="#b0a898" font-size="11" y="814" x="34">Inventory { List&lt;Item&gt; Items; bool HasWeapon(); bool HasKey(string keyName); }</text>
+<text fill="#b0a898" font-size="11" y="831" x="34">Player { int HP; Inventory Inventory; Room CurrentRoom; bool IsAlive; bool IsWinner; }</text>
+<text fill="#b0a898" font-size="11" y="848" x="34">Game { Player Player; void Move(dir); void PickUp(item); void Fight(); bool IsGameOver(); }</text>
+<text fill="#555" font-size="11" y="868" x="34"/>
+</svg>
