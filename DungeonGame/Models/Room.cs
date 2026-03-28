@@ -36,7 +36,7 @@ namespace DungeonGame
             return Exits.TryGetValue(direction, out room);
         }
 
-        public bool CanEnter(Inventory inventory, Room currentRoom)
+        public bool CanEnter(IInventory inventory, Room currentRoom)
         {
             if (!IsLocked) return true;
             if (RequiredKeyName == null) return false;

@@ -2,7 +2,7 @@ namespace DungeonGame
 {
     public class Game
     {
-        public Player Player { get; private set; }
+        public IPlayer Player { get; private set; }
 
         private Room entrance;
         private Room armory;
@@ -20,7 +20,7 @@ namespace DungeonGame
 
         // Constructor for Testing
 
-        public Game(Player player, Room entrance, Room armory, Room crypt,
+        public Game(IPlayer player, Room entrance, Room armory, Room crypt,
                     Room pillarHall, Room monsterRoom, Room treasureRoom)
         {
             Player = player;

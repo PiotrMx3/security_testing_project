@@ -25,7 +25,7 @@ namespace DungeonGame
             if (Health < 0) Health = 0;
         }
 
-        public void Attack(Player player)
+        public void Attack(IPlayer player)
         {
             player.TakeDamage(AttackDamage);
         }
