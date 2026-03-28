@@ -25,8 +25,6 @@
 
 
 
-            // TODO: Game Interface
-
             while (!game.IsGameOver())
             {
                 GetRoomInfo(game.Player.CurrentRoom);
