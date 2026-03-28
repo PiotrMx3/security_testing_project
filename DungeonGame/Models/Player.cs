@@ -30,7 +30,7 @@ namespace DungeonGame
             if (!CurrentRoom.TryGetExit(direction, out Room? nextRoom) || nextRoom == null)
                 return false;
 
-            if (!nextRoom.CanEnter(Inventory))
+            if (!nextRoom.CanEnter(Inventory, CurrentRoom))
                 return false;
 
             CurrentRoom = nextRoom;

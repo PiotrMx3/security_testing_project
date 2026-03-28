@@ -56,6 +56,7 @@ namespace DungeonGame
             pillarHall.AddExit("east", monsterRoom);
 
             monsterRoom.AddExit("south", treasureRoom);
+            monsterRoom.AddExit("west", pillarHall);
 
             // Room Items
             entrance.Items.Add(new Item("Torch", "Lights the way.", ItemType.Consumable));
