@@ -36,11 +36,12 @@ namespace DungeonGame
             return Exits.TryGetValue(direction, out room);
         }
 
-        public bool CanEnter(Inventory inventory)
+        public bool CanEnter(Inventory inventory, Room currentRoom)
         {
             if (!IsLocked) return true;
             if (RequiredKeyName == null) return false;
-            return inventory.HasKey(RequiredKeyName);
+            
+            return inventory.HasKey(RequiredKeyName) && (currentRoom.Monster is null  || !currentRoom.Monster.IsAlive);
         }
     }
 
