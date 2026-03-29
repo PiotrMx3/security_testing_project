@@ -1,7 +1,7 @@
 namespace DungeonGame
 {
 
-    public class Inventory
+    public class Inventory : IInventory
     {
         public List<Item> Items { get; private set; }
         public int MaxCapacity { get; set; }

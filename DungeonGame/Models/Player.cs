@@ -1,6 +1,6 @@
 namespace DungeonGame
 {
-    public class Player
+    public class Player: IPlayer
     {
         public string Name { get; set; }
         public int Health { get; set; }
