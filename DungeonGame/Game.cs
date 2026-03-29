@@ -2,149 +2,113 @@ namespace DungeonGame
 {
     public class Game
     {
-        public IPlayer Player { get; private set; }
-
-        private Room entrance;
-        private Room armory;
-        private Room crypt;
-        private Room pillarHall;
-        private Room monsterRoom;
-        private Room treasureRoom;
+        public Player Player { get; private set; }
+        public Rooms Rooms { get; private set; }
 
         // Constructor for Program.cs
         public Game(string playerName)
         {
-            SetupRooms();
-            Player = new Player(playerName, 100, entrance);
+            Rooms = GameSetup.CreateWorld();
+            Player = new Player(playerName, 100);
         }
 
         // Constructor for Testing
-
-        public Game(IPlayer player, Room entrance, Room armory, Room crypt,
-                    Room pillarHall, Room monsterRoom, Room treasureRoom)
+        public Game(Player player, Rooms rooms)
         {
             Player = player;
-            this.entrance = entrance;
-            this.armory = armory;
-            this.crypt = crypt;
-            this.pillarHall = pillarHall;
-            this.monsterRoom = monsterRoom;
-            this.treasureRoom = treasureRoom;
+            Rooms = rooms;
         }
 
-        private void SetupRooms()
+        public bool Move(string directionInput)
         {
-            // Rooms
-            entrance = new Room("Entrance", "A dark doorway.");
-            armory = new Room("Armory", "Weapons on the walls.");
-            crypt = new Room("Crypt", "Cold and silent.");
-            pillarHall = new Room("PillarHall", "Tall stone pillars.", hasTrap: true, trapDamage: 10);
-            monsterRoom = new Room("MonsterRoom", "You hear growling.");
-            treasureRoom = new Room("TreasureRoom", "Glittering gold.", isLocked: true, requiredKeyName: "GoldenKey");
+            Direction? direction = DirectionHelper.Parse(directionInput);
 
-            // Rooms Exits
-            entrance.AddExit("east", armory);
-            entrance.AddExit("south", pillarHall);
+            if (direction == null)
+                return false;
 
-            armory.AddExit("west", entrance);
-            armory.AddExit("east", crypt);
-
-            crypt.AddExit("west", armory);
-            crypt.AddExit("south", monsterRoom);
-
-            pillarHall.AddExit("north", entrance);
-            pillarHall.AddExit("east", monsterRoom);
-
-            monsterRoom.AddExit("south", treasureRoom);
-            monsterRoom.AddExit("west", pillarHall);
-
-            // Room Items
-            entrance.Items.Add(new Item("Torch", "Lights the way.", ItemType.Consumable));
-            entrance.Items.Add(new Item("OldMap", "A worn map.", ItemType.Consumable));
-
-            armory.Items.Add(new Item("Sword", "A sharp blade.", ItemType.Weapon));
-            armory.Items.Add(new Item("Shield", "Sturdy protection.", ItemType.Consumable));
-
-            crypt.Items.Add(new Item("GoldenKey", "Opens the treasure room.", ItemType.Key));
-
-            pillarHall.Items.Add(new Item("HealthPotion", "Restores 20 HP.", ItemType.Consumable));
-
-            treasureRoom.Items.Add(new Item("Treasure", "You win!", ItemType.Consumable));
-
-            // Monsters
-            armory.Monster = new Monster("Skeleton", 30, 10);
-            crypt.Monster = new Monster("Ghost", 20, 15);
-            monsterRoom.Monster = new Monster("Troll", 50, 25, requiresWeapon: true);
+            return Rooms.Move(direction.Value, Player);
         }
 
-
-        public bool Move(string direction)
+        public bool Take(string itemName)
         {
-            return Player.Move(direction);
+            Item? item = Rooms.CurrentRoom.TakeItem(itemName);
 
-        }
+            if (item == null)
+                return false;
 
+            if (!Player.Inventory.Add(item))
+            {
+                // Item didn't fit in inventory, put it back in the room
+                Rooms.CurrentRoom.Items.Add(item);
+                return false;
+            }
 
-        public bool PickUp(string itemName)
-        {
-            Item? item = Player.CurrentRoom.Items.FirstOrDefault(i => i.Name.Equals(itemName, StringComparison.OrdinalIgnoreCase));
-
-            if (item is not null) return Player.PickUpItem(item);
-
-            return false;
-
+            return true;
         }
 
         public bool Fight()
         {
-
-
-            if (Player.CurrentRoom.Monster is null)
-            {
-                return false;
-            }
-
-            if (Player.CurrentRoom.Monster.RequiresWeapon && !Player.Inventory.HasWeapon())
-            {
-                Player.Health = 0;
-                return false;
-            }
-
-
-            while (Player.CurrentRoom.Monster.IsAlive && Player.IsAlive)
-            {
-                bool rng = new Random().Next(0, 100) < 25;
-                int rDamage = rng ? 5 : 20;
-
-                Player.CurrentRoom.Monster.TakeDamage(rDamage);
-
-                if (!Player.CurrentRoom.Monster.IsAlive) return true;
-
-                Player.CurrentRoom.Monster.Attack(Player);
-
-                if (!Player.IsAlive) return false;
-
-            }
-
-            // Faalback you never know :)
-
-            return false;
-
+            return Rooms.Fight(Player);
         }
 
-
-
-        public bool IsGameOver()
+        public string Look()
         {
-            if (!Player.IsAlive || Player.IsWinner) return true;
+            string info = Rooms.CurrentRoom.Describe();
 
-            return false;
+            info += "\nYour inventory:\n";
+            if (Player.Inventory.Items.Any())
+            {
+                foreach (Item item in Player.Inventory.Items)
+                {
+                    info += $"  - {item}\n";
+                }
+            }
+            else
+            {
+                info += "  (empty)\n";
+            }
+
+            info += $"\nHP: {Player.Health}\n";
+
+            return info;
+        }
+
+        public string ShowInventory()
+        {
+            string info = "Inventory:\n";
+
+            if (Player.Inventory.Items.Any())
+            {
+                foreach (Item item in Player.Inventory.Items)
+                {
+                    info += $"  - {item}\n";
+                }
+            }
+            else
+            {
+                info += "  (empty)\n";
+            }
+
+            return info;
+        }
+
+        public string Help()
+        {
+            string info = "";
+            info += "Available commands:\n";
+            info += "  help              - show this list\n";
+            info += "  look              - show room info, items, exits and inventory\n";
+            info += "  inventory         - show your inventory\n";
+            info += "  go n|e|s|w        - move to another room\n";
+            info += "  take <item name>  - pick up an item\n";
+            info += "  fight             - fight the monster in this room\n";
+            info += "  quit              - stop the game\n";
+            return info;
         }
 
         public bool CheckWin()
         {
-            
-            if(Player.CurrentRoom.Name.Equals("TreasureRoom") && Player.Inventory.Contains("Treasure"))
+            if (Rooms.CurrentRoom.Name == "WinRoom")
             {
                 Player.IsWinner = true;
                 return true;
@@ -153,6 +117,11 @@ namespace DungeonGame
             return false;
         }
 
-    }
+        public bool IsGameOver()
+        {
+            if (!Player.IsAlive || Player.IsWinner) return true;
 
+            return false;
+        }
+    }
 }
