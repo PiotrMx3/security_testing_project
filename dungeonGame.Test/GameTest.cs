@@ -1,4 +1,4 @@
-﻿/*using NUnit.Framework;
+﻿using NUnit.Framework;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -242,4 +242,3 @@ public class GameTest
         Assert.That(monster.IsAlive, Is.False);
     }
 }
-*/
