@@ -5,10 +5,10 @@ namespace DungeonGame.Test;
 public class MonstersTests
 {
     [Test]
-    public void TakeDamade_Reduce_Health_To_Zero()
+    public void TakeDamage_Reduce_Health_To_Zero()
     {
         Monster monster = new Monster("Goblin", 80, 15);
-        monster.TakeDamage(70);
+        monster.TakeDamage(90);
         Assert.AreEqual(0, monster.Health);
     }
     [Test]
