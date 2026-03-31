@@ -1,16 +1,16 @@
-namespace dungeonGame.Test
-{
-    public class Tests
-    {
-        [SetUp]
-        public void Setup()
-        {
-        }
+//namespace DungeonGame.Test
+//{
+//    public class Tests
+//    {
+//        [SetUp]
+//        public void Setup()
+//        {
+//        }
 
-        [Test]
-        public void Test1()
-        {
-            Assert.Pass();
-        }
-    }
-}
+//        [Test]
+//        public void Test1()
+//        {
+//            Assert.Pass();
+//        }
+//    }
+//}
