@@ -17,7 +17,7 @@ namespace DungeonGame
             CurrentRoom = startRoom;
         }
 
-        public bool Move(Direction direction, Player player)
+        public bool Move(Direction direction, IPlayer player)
         {
             // Check: monster blocks exit (leave monster room while alive = death)
             if (CurrentRoom.BlockExitIfMonsterAlive
@@ -51,7 +51,7 @@ namespace DungeonGame
             return true;
         }
 
-        public bool Fight(Player player)
+        public bool Fight(IPlayer player)
         {
             if (CurrentRoom.Monster == null || !CurrentRoom.Monster.IsAlive)
             {
