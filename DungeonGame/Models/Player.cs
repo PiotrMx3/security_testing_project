@@ -1,12 +1,12 @@
 namespace DungeonGame
 {
-    public class Player: IPlayer
+    public class Player : IPlayer
     {
         public string Name { get; set; }
         public int Health { get; set; }
         public bool IsAlive => Health > 0;
         public bool IsWinner { get; set; }
-        public Inventory Inventory { get; set; }
+        public IInventory Inventory { get; set; }
 
         public Player(string name, int health)
         {

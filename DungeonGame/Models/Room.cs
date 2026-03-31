@@ -37,7 +37,7 @@ namespace DungeonGame
             return Exits.ContainsKey(direction);
         }
 
-        public bool CanEnter(Inventory inventory)
+        public bool CanEnter(IInventory inventory)
         {
             if (!IsLocked) return true;
             if (RequiredKeyName == null) return false;
