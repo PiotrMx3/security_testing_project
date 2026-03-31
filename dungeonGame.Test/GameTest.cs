@@ -41,7 +41,7 @@ public class GameTest
         mockPlayer.Setup(p => p.CurrentRoom).Returns(entrance);
         mockPlayer.Setup(p => p.IsAlive).Returns(true);
 
-        game = new Game(mockPlayer.Object,entrance,armory,crypt,null,null,null);
+        game = new Game(mockPlayer.Object, entrance, armory, crypt, null, null, null);
     }
 
     [Test]
@@ -116,7 +116,7 @@ public class GameTest
     {
         // Arrange
         var monsterRoom = new Room("Monster", "Test");
-        var monster = new Monster("Troll", 50,25, requiresWeapon: true);
+        var monster = new Monster("Troll", 50, 25, requiresWeapon: true);
         monsterRoom.Monster = monster;
 
         mockPlayer.Setup(p => p.CurrentRoom).Returns(monsterRoom);
@@ -174,11 +174,11 @@ public class GameTest
     }
 
     [Test]
-    public void IsGameOverWhenPlayerWinnerShouldReturnTrue() 
+    public void IsGameOverWhenPlayerWinnerShouldReturnTrue()
     {
         // Arrange
         mockPlayer.Setup(p => p.IsAlive).Returns(true);
-        mockPlayer.Setup(p => p.IsWinner).Returns(true);   
+        mockPlayer.Setup(p => p.IsWinner).Returns(true);
 
         // Act
         bool result = game.IsGameOver();
