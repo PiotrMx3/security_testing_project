@@ -191,9 +191,8 @@ public class GameTest
     public void FightMonsterRequiresWeaponsPlayerNoWeaponShouldKillPlayer()
     {
         // Arrange
-        var monsterRoom = new Room("Monster", "Test");
-        var monster = new Monster("Troll", 50,25, requiresWeapon: true);
-        monsterRoom.Monster = monster;
+        var realPlayer = new Player("Test", 100);
+        var testGame = new Game(realPlayer, rooms);
 
         // Ga direct naar monster room zonder wapen
         testGame.Move("s");
@@ -303,8 +302,9 @@ public class GameTest
     public void IsGameOverWhenPlayerWinnerShouldReturnTrue()
     {
         // Arrange
-        mockPlayer.Setup(p => p.IsAlive).Returns(true);
-        mockPlayer.Setup(p => p.IsWinner).Returns(true);   
+        var realPlayer = new Player("Test", 100);
+        var testGame = new Game(realPlayer, rooms);
+        realPlayer.IsWinner = true;
 
         // Act
         bool result = testGame.IsGameOver();
