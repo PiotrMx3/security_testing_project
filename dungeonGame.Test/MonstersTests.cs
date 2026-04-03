@@ -24,7 +24,6 @@ public class MonstersTests
     [Test]
     public void Monster_Deals_damage_To_The_Player()
     {
-        Room romm = new Room("Testroom","A room for testing", false, false, null, false);
         Player player = new Player("Hero", 100);
         Monster monster = new Monster("Orc", 50, 20);
 

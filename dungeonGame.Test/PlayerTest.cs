@@ -7,13 +7,13 @@ namespace Testing
 public class PlayerTest
     {
         [Test]
-        public void Checking_for_correct_name()
+        public void Checking_for_correct_Player_name()
         {
             Player player = new Player("TestHero", 100);
             Assert.AreEqual("TestHero", player.Name);
         }
         [Test]
-        public void Check_if_Health_IsEqual()
+        public void Check_if_Player_Health_IsEqual()
         {
             var player = new Player("TestSpeler", 100);
             Assert.AreEqual(100, player.Health);
@@ -44,7 +44,7 @@ public class PlayerTest
         }
        
         [Test]
-        public void Player_Lose_Game()
+        public void Player_Have_not_won_Game()
         {
             var player = new Player("TestSpeler", 100);
             Assert.False(player.IsWinner);
