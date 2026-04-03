@@ -1,3 +1,4 @@
+/*
 namespace dungeonGame.Test
 {
     public class Tests
@@ -13,4 +14,4 @@ namespace dungeonGame.Test
             Assert.Pass();
         }
     }
-}
+}*/
