@@ -38,6 +38,7 @@ public class PlayerTest
         public void Player_Wins_game()
         {
             Player player = new Player("TestHero", 100);
+
             player.IsWinner = true;
             Assert.True(player.IsWinner);
         }
