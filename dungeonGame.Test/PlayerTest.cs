@@ -31,6 +31,7 @@ public class PlayerTest
             Player player = new Player("TestHero", 100);
 
             player.TakeDamage(30);
+
             Assert.AreEqual(70, player.Health);
         }
         [Test]
