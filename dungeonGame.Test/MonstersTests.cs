@@ -5,6 +5,7 @@ namespace DungeonGame.Test;
 [TestFixture]
 public class MonstersTests
 {
+    [Test]
     public void Checking_Monster_Correct_name_is_Equal()
     {
         Monster monster = new Monster("Goblin", 100, 30);
