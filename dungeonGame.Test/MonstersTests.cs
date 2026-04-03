@@ -5,6 +5,11 @@ namespace DungeonGame.Test;
 [TestFixture]
 public class MonstersTests
 {
+    public void Checking_Monster_Correct_name_is_Equal()
+    {
+        Monster monster = new Monster("Goblin", 100, 30);
+        Assert.AreEqual("Goblin", monster.Name);
+    }
     [Test]
     public void Monster_Taking_Damage_To_Zero()
     {
@@ -17,7 +22,7 @@ public class MonstersTests
     [Test]
     public void Taking_Damage_Ignores_Negative_Damage()
     {
-        Monster monster = new Monster("orc", 100,15);
+        Monster monster = new Monster("orc", 100, 15);
         monster.TakeDamage(-25);
         Assert.AreEqual(100, monster.Health);
     }
@@ -43,7 +48,7 @@ public class MonstersTests
         Assert.IsTrue(monsternWithWeapon.RequiresWeapon);
         Assert.IsFalse(monsterWitoutWeapon.RequiresWeapon);
 
-        
+
     }
     [Test]
     public static void Monster_Health_ReachesZero()
