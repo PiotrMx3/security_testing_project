@@ -6,7 +6,7 @@ namespace DungeonGame
         public string Description { get; set; }
         public Dictionary<Direction, Room> Exits { get; set; }
         public List<Item> Items { get; set; }
-        public Monster? Monster { get; set; }
+        public IMonster? Monster { get; set; }
         public bool IsDeadly { get; set; }
         public bool IsLocked { get; set; }
         public string? RequiredKeyName { get; set; }
