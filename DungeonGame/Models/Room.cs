@@ -1,11 +1,13 @@
+using DungeonGame.Models;
+
 namespace DungeonGame
 {
-    public class Room
+    public class Room : IRoom
     {
         public string Name { get; set; }
         public string Description { get; set; }
         public Dictionary<Direction, Room> Exits { get; set; }
-        public List<Item> Items { get; set; }
+        public List<IItem> Items { get; set; }
         public Monster? Monster { get; set; }
         public bool IsDeadly { get; set; }
         public bool IsLocked { get; set; }
@@ -19,7 +21,7 @@ namespace DungeonGame
             Name = name;
             Description = description;
             Exits = new Dictionary<Direction, Room>();
-            Items = new List<Item>();
+            Items = new List<IItem>();
             Monster = null;
             IsDeadly = isDeadly;
             IsLocked = isLocked;
@@ -44,9 +46,9 @@ namespace DungeonGame
             return inventory.HasKey(RequiredKeyName);
         }
 
-        public Item? TakeItem(string itemName)
+        public IItem? TakeItem(string itemName)
         {
-            Item? item = Items.FirstOrDefault(i => i.Name.Equals(itemName, StringComparison.OrdinalIgnoreCase));
+            IItem? item = Items.FirstOrDefault(i => i.Name.Equals(itemName, StringComparison.OrdinalIgnoreCase));
             if (item != null)
             {
                 Items.Remove(item);
@@ -64,7 +66,7 @@ namespace DungeonGame
             if (Items.Any())
             {
                 info += "\nItems in this room:\n";
-                foreach (Item item in Items)
+                foreach (IItem item in Items)
                 {
                     info += $"  - {item}\n";
                 }

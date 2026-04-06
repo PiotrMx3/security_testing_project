@@ -1,16 +1,18 @@
 ﻿
+using DungeonGame.Models;
+
 namespace DungeonGame
 {
     public interface IInventory
     {
-        List<Item> Items { get; }
+        List<IItem> Items { get; }
         int MaxCapacity { get; set; }
 
-        bool Add(Item item);
-        bool Contains(Item item);
+        bool Add(IItem item);
+        bool Contains(IItem item);
         bool Contains(string name);
         bool HasKey(string keyName);
         bool HasWeapon();
-        bool Remove(Item item);
+        bool Remove(IItem item);
     }
 }
