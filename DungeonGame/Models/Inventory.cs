@@ -1,18 +1,20 @@
+using DungeonGame.Models;
+
 namespace DungeonGame
 {
 
     public class Inventory : IInventory
     {
-        public List<Item> Items { get; private set; }
+        public List<IItem> Items { get; private set; }
         public int MaxCapacity { get; set; }
 
         public Inventory(int maxCapacity = 5)
         {
-            Items = new List<Item>();
+            Items = new List<IItem>();
             MaxCapacity = maxCapacity;
         }
 
-        public bool Add(Item item)
+        public bool Add(IItem item)
         {
             if (Items.Count >= MaxCapacity)
                 return false;
@@ -21,12 +23,12 @@ namespace DungeonGame
             return true;
         }
 
-        public bool Remove(Item item)
+        public bool Remove(IItem item)
         {
             return Items.Remove(item);
         }
 
-        public bool Contains(Item item)
+        public bool Contains(IItem item)
         {
             return Items.Contains(item);
         }
