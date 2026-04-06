@@ -11,7 +11,7 @@ namespace DungeonGame.Models
         string Name { get; set; }
         string Description { get; set; }
         Dictionary<Direction, Room> Exits { get; set; }
-        Monster? Monster { get; set; }
+        IMonster? Monster { get; set; }
         bool IsDeadly { get; set; }
         bool IsLocked { get; set; }
         string? RequiredKeyName { get; set; }

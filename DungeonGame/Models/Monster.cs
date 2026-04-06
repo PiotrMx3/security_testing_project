@@ -2,7 +2,7 @@ namespace DungeonGame
 {
 
 
-    public class Monster
+    public class Monster : IMonster
     {
         public string Name { get; set; }
         public int Health { get; set; }
