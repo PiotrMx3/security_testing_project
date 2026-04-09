@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DungeonGame.Test.Invetory
 {
-    internal class InventoryContainsTest
+    internal class InventoryContainsByNameTest
     {
         private Inventory _sut;
         private Item _sword;
@@ -19,64 +19,59 @@ namespace DungeonGame.Test.Invetory
         }
 
         [Test]
-        public void Contains_ExistingItem_ReturnsTrue()
+        public void ContainsByName_ExistingItem_ReturnsTrue()
         {
             //Arrange
             _sut.Add(_sword);
-
             //Act
-            bool actual = _sut.Contains(_sword);
-
+            bool actual = _sut.Contains("Sword");
             //Assert
             Assert.That(actual, Is.True);
         }
 
         [Test]
-        public void Contains_DuplicateItemAfterRemovingOne_ReturnsTrue()
+        public void ContainsByName_DuplicateItemAfterRemovingOne_ReturnsTrue()
         {
             //Arrange
             _sut.Add(_sword);
             _sut.Add(_sword);
             _sut.Remove(_sword);
-
             //Act
-            bool actual = _sut.Contains(_sword);
-
+            bool actual = _sut.Contains("Sword");
             //Assert
             Assert.That(actual, Is.True);
         }
 
         [Test]
-        public void Contains_EmptyCollection_ReturnsFalse()
+        public void ContainsByName_EmptyCollection_ReturnsFalse()
         {
             //Arrange
-
             //Act
-            bool actual = _sut.Contains(_sword);
-
+            bool actual = _sut.Contains("Sword");
             //Assert
             Assert.That(actual, Is.False);
         }
-
 
         [Test]
-        public void Contains_NotExistingItem_ReturnsFalse()
+        public void ContainsByName_NotExistingItem_ReturnsFalse()
         {
             //Arrange
             _sut.Add(_sword);
-            _sut.Add(_sword);
-
-            Item test = new("Test", "Test", ItemType.Weapon);
-
             //Act
-            bool actual = _sut.Contains(test);
-
+            bool actual = _sut.Contains("Dagger");
             //Assert
             Assert.That(actual, Is.False);
         }
 
-
-
-
+        [Test]
+        public void ContainsByName_WrongCasing_ReturnsFalse()
+        {
+            //Arrange
+            _sut.Add(_sword);
+            //Act
+            bool actual = _sut.Contains("sword");
+            //Assert
+            Assert.That(actual, Is.False);
+        }
     }
 }
