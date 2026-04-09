@@ -14,16 +14,17 @@ namespace DungeonGame.Test.Invetory
         [SetUp]
         public void Setup()
         {
-            _sut = new Inventory(maxCapacity: 5);
-            _sword = new Item("Sword", "A sharp blade.", ItemType.Weapon);
+            this._sut = new Inventory(maxCapacity: 5);
+            this._sword = new Item("Sword", "A sharp blade.", ItemType.Weapon);
         }
 
         [Test]
         public void Add_ValidItem_ReturnsTrue()
         {
             // Act
-                _sut.Add(_sword);
+            bool actual =  _sut.Add(_sword);
             // Assert
+            Assert.That(actual, Is.True);
             Assert.That(_sut.Items.Count, Is.EqualTo(1));
 
         }
