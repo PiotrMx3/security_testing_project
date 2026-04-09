@@ -1,3 +1,5 @@
+using DungeonGame.Models;
+
 namespace DungeonGame
 {
     public enum ItemType
@@ -7,7 +9,7 @@ namespace DungeonGame
         Consumable
     }
 
-    public class Item
+    public class Item : IItem
     {
         public string Name { get; set; }
         public string Description { get; set; }
@@ -25,7 +27,4 @@ namespace DungeonGame
             return $"{Name} ({Type}): {Description}";
         }
     }
-
-
-
 }

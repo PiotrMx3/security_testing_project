@@ -1,3 +1,5 @@
+using DungeonGame.Models;
+
 namespace DungeonGame
 {
     public class Game
@@ -31,7 +33,7 @@ namespace DungeonGame
 
         public bool Take(string itemName)
         {
-            Item? item = Rooms.CurrentRoom.TakeItem(itemName);
+            IItem? item = Rooms.CurrentRoom.TakeItem(itemName);
 
             if (item == null)
                 return false;
@@ -58,7 +60,7 @@ namespace DungeonGame
             info += "\nYour inventory:\n";
             if (Player.Inventory.Items.Any())
             {
-                foreach (Item item in Player.Inventory.Items)
+                foreach (IItem item in Player.Inventory.Items)
                 {
                     info += $"  - {item}\n";
                 }
@@ -79,7 +81,7 @@ namespace DungeonGame
 
             if (Player.Inventory.Items.Any())
             {
-                foreach (Item item in Player.Inventory.Items)
+                foreach (IItem item in Player.Inventory.Items)
                 {
                     info += $"  - {item}\n";
                 }
