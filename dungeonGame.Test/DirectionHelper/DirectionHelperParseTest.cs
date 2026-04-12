@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DungeonGame.Test.DirectionHelper
 {
-    public class DirectionHelperDirectionTest
+    public class DirectionHelperParseTest
     {
         [TestCase("n")]
         [TestCase("N")]
