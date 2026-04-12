@@ -25,7 +25,6 @@ public class RoomsTests
 
         rooms.Move(Direction.North, mockPlayer.Object);
 
-        mockPlayer.Object.TakeDamage(100);
         Assert.AreEqual(0, mockPlayer.Object.Health);
         Assert.AreEqual(startRoom, rooms.CurrentRoom);
     }
@@ -77,6 +76,7 @@ public class RoomsTests
         Assert.False(result);
         mockInventory.Verify(i => i.HasKey("Golden Key"), Times.Once);
     }
+    [Test]
     public void Move_IntoDeadlyRoom_PlayerDies_ReturnsTrue()
     {
         var mockPlayer = new Mock<IPlayer>();
@@ -167,5 +167,6 @@ public class RoomsTests
         Assert.False(result);
         Assert.AreEqual(0, mockPlayer.Object.Health);
     }
+ 
 
 }
