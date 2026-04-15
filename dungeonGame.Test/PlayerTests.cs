@@ -33,7 +33,32 @@ namespace dungeonGame.Test
 
                 Assert.AreEqual(70, player.Health);
             }
-            [Test]
+        [Test]
+        public void TakeDamage_SetsHealthToZero_WhenDamageEqualsCurrentHealth()
+        {
+            Player player = new Player("TestHero", 80);
+            player.TakeDamage(80);
+            Assert.AreEqual(0, player.Health);
+        }
+
+        [Test]
+        public void TakeDamage_ClampsHealthAtZero_WhenDamageExceedsCurrentHealth()
+        {
+            Player player = new Player("TestHero", 50);
+            player.TakeDamage(100);
+            Assert.AreEqual(0, player.Health);
+        }
+
+        [TestCase(100, true)]
+        [TestCase(1, true)]
+        [TestCase(0, false)]
+        [TestCase(-5, false)]
+        public void IsAlive_ReturnsCorrectValue_BasedOnHealth(int health, bool expectedIsAlive)
+        {
+            Player player = new Player("TestHero", health);
+            Assert.AreEqual(expectedIsAlive, player.IsAlive);
+        }
+        [Test]
             public void Player_Wins_game()
             {
                 Player player = new Player("TestHero", 100);

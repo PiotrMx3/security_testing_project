@@ -14,21 +14,67 @@ namespace DungeonGame.Test.Invetory
         [SetUp]
         public void Setup()
         {
-            _sut = new Inventory(maxCapacity: 5);
-            _sword = new Item("Sword", "A sharp blade.", ItemType.Weapon);
+            this._sut = new Inventory(maxCapacity: 5);
+            this._sword = new Item("Sword", "A sharp blade.", ItemType.Weapon);
         }
 
         [Test]
-        public void Adding_Item_Returns_That_Item()
+        public void Add_ValidItem_ReturnsTrue()
+        {
+            // Act
+            bool actual =  _sut.Add(_sword);
+            // Assert
+            Assert.That(actual, Is.True);
+            Assert.That(_sut.Items.Count, Is.EqualTo(1));
+
+        }
+
+        [Test]
+        public void Add_MaxCapacity_ReturnsFalse()
         {
             // Arrange
-            bool excpected = true;                
+            int maxCapacity = 1;
+            var fullInventory = new Inventory() { MaxCapacity = maxCapacity };
+            fullInventory.Add(_sword);
+
             // Act
-            bool actual = _sut.Add(_sword);
+            bool actual = fullInventory.Add(_sword);
 
             // Assert
-            Assert.That(actual, Is.EqualTo(excpected));
+            Assert.That(actual, Is.False);
+            Assert.That(fullInventory.Items.Count, Is.EqualTo(maxCapacity));
 
+
+        }
+
+
+        [Test]
+        public void Add_SameItemTwice_BothSucceed()
+        {
+
+            // Act
+            _sut.Add(_sword);
+            _sut.Add(_sword);
+
+
+            // Assert
+            Assert.That(_sut.Items.Count, Is.EqualTo(2));
+
+        }
+
+        [Test]
+        public void Add_ItemCountEquals_MaxCapacity_ReturnsTrue()
+        {
+
+            // Arrange
+            int maxCapacity = 1;
+            var inventory = new Inventory() { MaxCapacity = maxCapacity };
+
+            // Act
+            inventory.Add(_sword);
+
+            // Assert
+            Assert.That(inventory.Items.Count, Is.EqualTo(maxCapacity));
 
         }
 
