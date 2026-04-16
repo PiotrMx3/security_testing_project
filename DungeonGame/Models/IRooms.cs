@@ -1,7 +1,4 @@
-﻿
-using DungeonGame.Models;
-
-namespace DungeonGame
+﻿namespace DungeonGame
 {
     public interface IRooms
     {

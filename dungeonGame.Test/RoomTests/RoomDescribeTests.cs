@@ -1,5 +1,4 @@
-﻿using DungeonGame.Models;
-using Moq;
+﻿using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +8,7 @@ using System.Threading.Tasks;
 namespace DungeonGame.Test.RoomTests
 {
     [TestFixture]
-    internal class RoomDescribeReturnsStringTest
+    internal class RoomDescribeTests
     {
         private IRoom _room;
 
@@ -19,11 +18,7 @@ namespace DungeonGame.Test.RoomTests
             // We maken een kamer die op slot zit
             _room = new Room(
                 "Boven",
-                "Een kamer met een deur",
-                isDeadly: false,
-                isLocked: true,
-                requiredKeyName: "Gouden sleutel",
-                blockExitIfMonsterAlive: true
+                "Een kamer met een deur"
                 );
         }
         [Test]

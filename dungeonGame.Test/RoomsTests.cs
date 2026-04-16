@@ -1,4 +1,3 @@
-using DungeonGame.Models;
 using Moq;
 
 namespace DungeonGame.Test;

@@ -1,5 +1,4 @@
-﻿using DungeonGame.Models;
-using Moq;
+﻿using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +8,7 @@ using System.Threading.Tasks;
 namespace DungeonGame.Test.RoomTests
 {
     [TestFixture]
-    internal class RoomCanEnterTest
+    internal class RoomCanEnterTests
     {
         private IRoom _room;
         private Mock<IInventory> _mockInventory;
@@ -21,10 +20,8 @@ namespace DungeonGame.Test.RoomTests
             _room = new Room(
                 "Boven",
                 "Een kamer met een deur",
-                isDeadly: false,
                 isLocked: true,
-                requiredKeyName: "Gouden sleutel",
-                blockExitIfMonsterAlive: true
+                requiredKeyName: "Gouden sleutel"
                 );
             // We maken een mocked Inventory
             _mockInventory = new Mock<IInventory>();

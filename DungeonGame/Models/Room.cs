@@ -1,5 +1,3 @@
-using DungeonGame.Models;
-
 namespace DungeonGame
 {
     public class Room : IRoom
