@@ -6,7 +6,7 @@ namespace DungeonGame
     {
         public string Name { get; set; }
         public string Description { get; set; }
-        public Dictionary<Direction, Room> Exits { get; set; }
+        public Dictionary<Direction, IRoom> Exits { get; set; }
         public List<IItem> Items { get; set; }
         public IMonster? Monster { get; set; }
         public bool IsDeadly { get; set; }
@@ -20,7 +20,7 @@ namespace DungeonGame
         {
             Name = name;
             Description = description;
-            Exits = new Dictionary<Direction, Room>();
+            Exits = new Dictionary<Direction, IRoom>();
             Items = new List<IItem>();
             Monster = null;
             IsDeadly = isDeadly;
@@ -29,7 +29,7 @@ namespace DungeonGame
             BlockExitIfMonsterAlive = blockExitIfMonsterAlive;
         }
 
-        public void AddExit(Direction direction, Room room)
+        public void AddExit(Direction direction, IRoom room)
         {
             Exits[direction] = room;
         }

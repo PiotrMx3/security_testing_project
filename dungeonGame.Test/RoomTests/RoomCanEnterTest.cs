@@ -6,9 +6,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DungeonGame.Test
+namespace DungeonGame.Test.RoomTests
 {
-    public class RoomTest
+    [TestFixture]
+    internal class RoomCanEnterTest
     {
         private IRoom _room;
         private Mock<IInventory> _mockInventory;
@@ -16,34 +17,18 @@ namespace DungeonGame.Test
         [SetUp]
         public void Setup()
         {
-            // 1. ARRANGE
             // We maken een kamer die op slot zit
             _room = new Room(
-                "Boven", 
-                "Een kamer met een deur", 
-                isDeadly: false, 
-                isLocked: true, 
-                requiredKeyName: "Gouden sleutel", 
+                "Boven",
+                "Een kamer met een deur",
+                isDeadly: false,
+                isLocked: true,
+                requiredKeyName: "Gouden sleutel",
                 blockExitIfMonsterAlive: true
                 );
             // We maken een mocked Inventory
             _mockInventory = new Mock<IInventory>();
         }
-        // Describe Test
-        [Test]
-        public void Describe_ReturnsString()
-        {
-            // 1. ARRANGE (Word gedaan in SetUp)
-            // Let op de @ voor de string (verbatim string), dit maakt het makkelijker met enters.
-            string expected = "\n=== Boven ===\n" +
-                              "Een kamer met een deur\n" +
-                              "\nExits:\n";
-            // 2. ACT
-            string result = _room.Describe();
-            // 3. ASSERT
-            Assert.That(result, Is.EqualTo(expected));
-        }
-        // CanEnter Tests
         [Test]
         public void CanEnter_LockedRoomWithCorrectKey_ReturnsTrue()
         {
@@ -64,6 +49,5 @@ namespace DungeonGame.Test
             // 3. ASSERT
             Assert.That(result, Is.False);
         }
-        //
     }
 }

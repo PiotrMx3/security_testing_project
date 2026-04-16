@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DungeonGame.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,12 +11,12 @@ namespace DungeonGame.Test
     public class GameIntegrationTest
     {
         private Rooms rooms;
-        private Room startRoom;
-        private Room keyRoom;
-        private Room swordRoom;
-        private Room monsterRoom;
-        private Room deathRoom;
-        private Room winRoom;
+        private IRoom startRoom;
+        private IRoom keyRoom;
+        private IRoom swordRoom;
+        private IRoom monsterRoom;
+        private IRoom deathRoom;
+        private IRoom winRoom;
 
         [SetUp]
         public void Setup()
@@ -55,7 +56,7 @@ namespace DungeonGame.Test
             // ---------------------------
             // Rooms object
             // ---------------------------
-            var allRooms = new List<Room> { startRoom, keyRoom, swordRoom, monsterRoom, deathRoom, winRoom };
+            var allRooms = new List<IRoom> { startRoom, keyRoom, swordRoom, monsterRoom, deathRoom, winRoom };
             rooms = new Rooms(allRooms, startRoom);
         }
 

@@ -1,3 +1,4 @@
+using DungeonGame.Models;
 using Moq;
 
 namespace DungeonGame.Test;
@@ -21,7 +22,7 @@ public class RoomsTests
         startRoom.Monster = mockMonster.Object;
         startRoom.AddExit(Direction.North, nextRoom);
 
-        var rooms = new Rooms(new List<Room> { startRoom, nextRoom }, startRoom);
+        var rooms = new Rooms(new List<IRoom> { startRoom, nextRoom }, startRoom);
 
         rooms.Move(Direction.North, mockPlayer.Object);
 
@@ -41,7 +42,7 @@ public class RoomsTests
         startRoom.Monster = mockMonster.Object; 
         startRoom.AddExit(Direction.North, nextRoom);
 
-        var rooms = new Rooms(new List<Room> { startRoom, nextRoom }, startRoom);
+        var rooms = new Rooms(new List<IRoom> { startRoom, nextRoom }, startRoom);
         rooms.Move(Direction.North, mockPlayer.Object);
         Assert.AreEqual(100, mockPlayer.Object.Health);
     }
@@ -50,7 +51,7 @@ public class RoomsTests
     {
         var mockPlayer = new Mock<IPlayer>();
         var startRoom = new Room("Start", "Starting room");
-        var rooms = new Rooms(new List<Room> { startRoom }, startRoom);
+        var rooms = new Rooms(new List<IRoom> { startRoom }, startRoom);
 
         bool result = rooms.Move(Direction.North, mockPlayer.Object);
 
@@ -69,7 +70,7 @@ public class RoomsTests
         var lockedRoom = new Room("Vault", "Locked room", isLocked: true, requiredKeyName: "Golden Key");
         startRoom.AddExit(Direction.North, lockedRoom);
 
-        var rooms = new Rooms(new List<Room> { startRoom, lockedRoom }, startRoom);
+        var rooms = new Rooms(new List<IRoom> { startRoom, lockedRoom }, startRoom);
 
         bool result = rooms.Move(Direction.North, mockPlayer.Object);
 
@@ -88,7 +89,7 @@ public class RoomsTests
         var deadlyRoom = new Room("Trap", "A deadly trap", isDeadly: true);
         startRoom.AddExit(Direction.North, deadlyRoom);
 
-        var rooms = new Rooms(new List<Room> { startRoom, deadlyRoom }, startRoom);
+        var rooms = new Rooms(new List<IRoom> { startRoom, deadlyRoom }, startRoom);
 
         bool result = rooms.Move(Direction.North, mockPlayer.Object);
 
@@ -107,7 +108,7 @@ public class RoomsTests
         var lockedRoom = new Room("Vault", "Locked room", isLocked: true, requiredKeyName: "Golden Key");
 
         startRoom.AddExit(Direction.North, lockedRoom);
-        var rooms = new Rooms(new List<Room> { startRoom, lockedRoom }, startRoom);
+        var rooms = new Rooms(new List<IRoom> { startRoom, lockedRoom }, startRoom);
         bool result = rooms.Move(Direction.North, mockPlayer.Object);
 
       
@@ -119,7 +120,7 @@ public class RoomsTests
     {
         var mockPlayer = new Mock<IPlayer>();
         var room = new Room("Start", "Starting room");
-        var rooms = new Rooms(new List<Room> { room }, room);
+        var rooms = new Rooms(new List<IRoom> { room }, room);
 
         bool result = rooms.Fight(mockPlayer.Object);
 
@@ -136,7 +137,7 @@ public class RoomsTests
         var room = new Room("Start", "Starting room");
         room.Monster = mockMonster.Object;
 
-        var rooms = new Rooms(new List<Room> { room }, room);
+        var rooms = new Rooms(new List<IRoom> { room }, room);
 
         bool result = rooms.Fight(mockPlayer.Object);
 
@@ -160,7 +161,7 @@ public class RoomsTests
         var room = new Room("Start", "Starting room");
         room.Monster = mockMonster.Object;
 
-        var rooms = new Rooms(new List<Room> { room }, room);
+        var rooms = new Rooms(new List<IRoom> { room }, room);
 
         bool result = rooms.Fight(mockPlayer.Object);
 

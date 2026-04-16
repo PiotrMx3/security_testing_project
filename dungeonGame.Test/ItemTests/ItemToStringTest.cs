@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DungeonGame.Test.Items
+namespace DungeonGame.Test.ItemTests
 {
     [TestFixture]
     internal class ItemToStringTest
