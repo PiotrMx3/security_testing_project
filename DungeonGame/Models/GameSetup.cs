@@ -5,12 +5,12 @@
         public static Rooms CreateWorld()
         {
             // Rooms
-            Room start = new Room("Start", "You are in a dark room. Exits lead in all directions.");
-            Room deathRoom = new Room("DeathRoom", "The floor collapses beneath you!", isDeadly: true);
-            Room keyRoom = new Room("KeyRoom", "A small dusty room. Something shines in the corner.");
-            Room winRoom = new Room("WinRoom", "A bright room with a golden door. You made it!", isLocked: true, requiredKeyName: "Key");
-            Room swordRoom = new Room("SwordRoom", "An old armory. Weapons hang on the walls.");
-            Room monsterRoom = new Room("MonsterRoom", "A dark cave. You hear growling.", blockExitIfMonsterAlive: true);
+            IRoom start = new Room("Start", "You are in a dark room. Exits lead in all directions.");
+            IRoom deathRoom = new Room("DeathRoom", "The floor collapses beneath you!", isDeadly: true);
+            IRoom keyRoom = new Room("KeyRoom", "A small dusty room. Something shines in the corner.");
+            IRoom winRoom = new Room("WinRoom", "A bright room with a golden door. You made it!", isLocked: true, requiredKeyName: "Key");
+            IRoom swordRoom = new Room("SwordRoom", "An old armory. Weapons hang on the walls.");
+            IRoom monsterRoom = new Room("MonsterRoom", "A dark cave. You hear growling.", blockExitIfMonsterAlive: true);
 
             // Exits
             start.AddExit(Direction.North, winRoom);
@@ -33,7 +33,7 @@
             monsterRoom.Monster = new Monster("Dragon", 50, 20, requiresWeapon: true);
 
             // All rooms in a list
-            List<Room> allRooms = new List<Room>
+            List<IRoom> allRooms = new List<IRoom>
             {
                 start, deathRoom, keyRoom, winRoom, swordRoom, monsterRoom
             };

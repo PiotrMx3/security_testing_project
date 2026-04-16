@@ -12,12 +12,12 @@ namespace DungeonGame.Test;
 public class GameTest
 {
     private Rooms rooms;
-    private Room startRoom;
-    private Room keyRoom;
-    private Room swordRoom;
-    private Room monsterRoom;
-    private Room deathRoom;
-    private Room winRoom;
+    private IRoom startRoom;
+    private IRoom keyRoom;
+    private IRoom swordRoom;
+    private IRoom monsterRoom;
+    private IRoom deathRoom;
+    private IRoom winRoom;
 
     [SetUp]
     public void Setup()
@@ -47,7 +47,7 @@ public class GameTest
         // Monster (echte instantie hier, gemockt in fight tests)
         monsterRoom.Monster = new Monster("Dragon", 50, 20, requiresWeapon: true);
 
-        var allRooms = new List<Room> { startRoom, keyRoom, swordRoom, monsterRoom, deathRoom, winRoom };
+        var allRooms = new List<IRoom> { startRoom, keyRoom, swordRoom, monsterRoom, deathRoom, winRoom };
         rooms = new Rooms(allRooms, startRoom);
     }
 
@@ -151,7 +151,7 @@ public class GameTest
         var testRoom = new Room("MonsterRoom", "Test", blockExitIfMonsterAlive: true);
         testRoom.Monster = mockMonster.Object;
 
-        var rooms = new Rooms(new List<Room> { testRoom }, testRoom);
+        var rooms = new Rooms(new List<IRoom> { testRoom }, testRoom);
         var game = new Game(mockPlayer.Object, rooms);
 
         bool result = game.Fight();
@@ -182,7 +182,7 @@ public class GameTest
         var testRoom = new Room("MonsterRoom", "Test", blockExitIfMonsterAlive: true);
         testRoom.Monster = mockMonster.Object;
 
-        var rooms = new Rooms(new List<Room> { testRoom }, testRoom);
+        var rooms = new Rooms(new List<IRoom> { testRoom }, testRoom);
         var game = new Game(mockPlayer.Object, rooms);
 
         bool result = game.Fight();

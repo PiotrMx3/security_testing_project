@@ -8,10 +8,10 @@ namespace DungeonGame
 {
     public class Rooms
     {
-        public List<Room> AllRooms { get; set; }
-        public Room CurrentRoom { get; set; }
+        public List<IRoom> AllRooms { get; set; }
+        public IRoom CurrentRoom { get; set; }
 
-        public Rooms(List<Room> allRooms, Room startRoom)
+        public Rooms(List<IRoom> allRooms, IRoom startRoom)
         {
             AllRooms = allRooms;
             CurrentRoom = startRoom;
@@ -32,7 +32,7 @@ namespace DungeonGame
             if (!CurrentRoom.HasExit(direction))
                 return false;
 
-            Room nextRoom = CurrentRoom.Exits[direction];
+            IRoom nextRoom = CurrentRoom.Exits[direction];
 
             // Check: room is locked and player has no key
             if (!nextRoom.CanEnter(player.Inventory))
