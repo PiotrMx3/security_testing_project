@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DungeonGame", "DungeonGame\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DungeonGame.Test", "dungeonGame.Test\DungeonGame.Test.csproj", "{9B04A92D-1BB1-424F-B7B7-180853953CCC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DungeonGame.IntegrationTest", "DungeonGame.IntegrationTest\DungeonGame.IntegrationTest.csproj", "{0D5CE108-7BD2-4314-A56D-321D949A71A0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +43,18 @@ Global
 		{9B04A92D-1BB1-424F-B7B7-180853953CCC}.Release|x64.Build.0 = Release|Any CPU
 		{9B04A92D-1BB1-424F-B7B7-180853953CCC}.Release|x86.ActiveCfg = Release|Any CPU
 		{9B04A92D-1BB1-424F-B7B7-180853953CCC}.Release|x86.Build.0 = Release|Any CPU
+		{0D5CE108-7BD2-4314-A56D-321D949A71A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D5CE108-7BD2-4314-A56D-321D949A71A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D5CE108-7BD2-4314-A56D-321D949A71A0}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{0D5CE108-7BD2-4314-A56D-321D949A71A0}.Debug|x64.Build.0 = Debug|Any CPU
+		{0D5CE108-7BD2-4314-A56D-321D949A71A0}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{0D5CE108-7BD2-4314-A56D-321D949A71A0}.Debug|x86.Build.0 = Debug|Any CPU
+		{0D5CE108-7BD2-4314-A56D-321D949A71A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D5CE108-7BD2-4314-A56D-321D949A71A0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0D5CE108-7BD2-4314-A56D-321D949A71A0}.Release|x64.ActiveCfg = Release|Any CPU
+		{0D5CE108-7BD2-4314-A56D-321D949A71A0}.Release|x64.Build.0 = Release|Any CPU
+		{0D5CE108-7BD2-4314-A56D-321D949A71A0}.Release|x86.ActiveCfg = Release|Any CPU
+		{0D5CE108-7BD2-4314-A56D-321D949A71A0}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
