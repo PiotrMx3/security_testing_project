@@ -75,7 +75,7 @@ namespace DungeonGame
 
             while (CurrentRoom.Monster.IsAlive && player.IsAlive)
             {
-                bool rng = new Random().Next(0, 100) < 25;
+                bool rng = Rnd.Next() < 25;
                 int rDamage = rng ? 5 : 20;
 
                 CurrentRoom.Monster.TakeDamage(rDamage);
