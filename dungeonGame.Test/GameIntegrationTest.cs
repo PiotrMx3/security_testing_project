@@ -129,6 +129,7 @@ namespace DungeonGame.Test
             Assert.IsTrue(game.Move("w")); // west = deathRoom
             Assert.IsFalse(player.IsAlive);
             Assert.AreEqual(0, player.Health);
+            Assert.IsTrue(game.IsGameOver());
         }
     }
 }

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace DungeonGame
 {
-    public class Rooms : IRooms
+    public class Rooms :IRooms
     {
         public List<IRoom> AllRooms { get; set; }
         public IRoom CurrentRoom { get; set; }

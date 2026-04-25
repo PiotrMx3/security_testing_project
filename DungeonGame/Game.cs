@@ -3,7 +3,7 @@ namespace DungeonGame
     public class Game
     {
         public IPlayer Player { get; private set; }
-        public Rooms Rooms { get; private set; }
+        public IRooms Rooms { get; private set; }
 
         // Constructor for Program.cs
         public Game(string playerName)
@@ -13,7 +13,7 @@ namespace DungeonGame
         }
 
         // Constructor for Testing
-        public Game(IPlayer player, Rooms rooms)
+        public Game(IPlayer player, IRooms rooms)
         {
             Player = player;
             Rooms = rooms;
