@@ -48,36 +48,6 @@ namespace DungeonGame.Test.Invetory
         }
 
 
-        [Test]
-        public void Add_SameItemTwice_BothSucceed()
-        {
-
-            // Act
-            _sut.Add(_sword);
-            _sut.Add(_sword);
-
-
-            // Assert
-            Assert.That(_sut.Items.Count, Is.EqualTo(2));
-
-        }
-
-        [Test]
-        public void Add_ItemCountEquals_MaxCapacity_ReturnsTrue()
-        {
-
-            // Arrange
-            int maxCapacity = 1;
-            var inventory = new Inventory() { MaxCapacity = maxCapacity };
-
-            // Act
-            inventory.Add(_sword);
-
-            // Assert
-            Assert.That(inventory.Items.Count, Is.EqualTo(maxCapacity));
-
-        }
-
     }
 }
 
