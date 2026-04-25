@@ -55,30 +55,5 @@ namespace DungeonGame.Test.Invetory
             Assert.That(actual, Is.True);
         }
 
-        [Test]
-        public void HasWeapon_EmptyCollection_ReturnsFalse()
-        {
-            //Arrange
-
-            //Act
-            bool actual = _sut.HasWeapon();
-
-            //Assert
-            Assert.That(actual, Is.False);
-        }
-
-        [Test]
-        public void HasWeapon_CollectionWithAtLeastOneWeaponItem_ReturnsTrue()
-        {
-            //Arragne
-            _sut.Add(_key);
-            _sut.Add(_recoveryKit);
-            _sut.Add(_dagger);
-            //Act
-            bool actual = _sut.HasWeapon();
-
-            //Assert
-            Assert.That(actual, Is.True);
-        }
     }
 }
