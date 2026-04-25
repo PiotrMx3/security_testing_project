@@ -1,4 +1,6 @@
-﻿using System;
+﻿using DungeonGame.Models;
+using DungeonGame.Models.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,11 +12,18 @@ namespace DungeonGame
     {
         public List<IRoom> AllRooms { get; set; }
         public IRoom CurrentRoom { get; set; }
+        public IRandom Rnd { get; set; }
 
-        public Rooms(List<IRoom> allRooms, IRoom startRoom)
+        public Rooms(List<IRoom> allRooms, IRoom startRoom, IRandom rnd)
         {
             AllRooms = allRooms;
             CurrentRoom = startRoom;
+            Rnd = rnd;
+        }
+
+        public Rooms(List<IRoom> allRooms, IRoom startRoom) : this (allRooms, startRoom, new RandomStub())
+        {
+
         }
 
         public bool Move(Direction direction, IPlayer player)
