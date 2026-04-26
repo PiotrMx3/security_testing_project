@@ -1,5 +1,5 @@
-﻿using DungeonGame.Models;
-using DungeonGame.Models.Interfaces;
+﻿using DungeonGame.Interfaces;
+using DungeonGame.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;

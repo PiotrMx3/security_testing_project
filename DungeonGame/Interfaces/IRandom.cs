@@ -1,4 +1,4 @@
-﻿namespace DungeonGame.Models.Interfaces
+﻿namespace DungeonGame.Interfaces
 {
     public interface IRandom
     {

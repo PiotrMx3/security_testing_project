@@ -1,4 +1,4 @@
-﻿using DungeonGame.Models.Interfaces;
+﻿using DungeonGame.Interfaces;
 
 namespace DungeonGame.Models
 {
