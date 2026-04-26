@@ -1,4 +1,4 @@
-﻿using DungeonGame.Models.Interfaces;
+﻿using DungeonGame.Interfaces;
 using Moq;
 
 namespace DungeonGame.IntegrationTest;
@@ -45,7 +45,7 @@ public class CombatTests
 
     [Test]
 
-    public void PlayerWithoutSword_FightingMonster_Lose()
+    public void PlayerWithoutSword_FightingMonsterWithRequireWeapen_Lose()
     {
         //Arange
         _sut.Move("s");
