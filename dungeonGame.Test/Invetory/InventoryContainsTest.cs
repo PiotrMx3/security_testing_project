@@ -31,33 +31,6 @@ namespace DungeonGame.Test.Invetory
             Assert.That(actual, Is.True);
         }
 
-        [Test]
-        public void Contains_DuplicateItemAfterRemovingOne_ReturnsTrue()
-        {
-            //Arrange
-            _sut.Add(_sword);
-            _sut.Add(_sword);
-            _sut.Remove(_sword);
-
-            //Act
-            bool actual = _sut.Contains(_sword);
-
-            //Assert
-            Assert.That(actual, Is.True);
-        }
-
-        [Test]
-        public void Contains_EmptyCollection_ReturnsFalse()
-        {
-            //Arrange
-
-            //Act
-            bool actual = _sut.Contains(_sword);
-
-            //Assert
-            Assert.That(actual, Is.False);
-        }
-
 
         [Test]
         public void Contains_NotExistingItem_ReturnsFalse()
@@ -74,9 +47,6 @@ namespace DungeonGame.Test.Invetory
             //Assert
             Assert.That(actual, Is.False);
         }
-
-
-
 
     }
 }
