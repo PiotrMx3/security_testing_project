@@ -1,9 +1,34 @@
-﻿namespace DungeonGame
+﻿using DungeonGame.Infrastructure;
+using DungeonGame.Services;
+using DungeonGame.UI;
+using System.Xml.Linq;
+
+namespace DungeonGame
 {
     internal class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
+            // 1. Maak eerst de service aan (zonder HttpClient)
+            var authService = new AuthService();
+
+            // 2. Maak de AuthHandler en koppel deze aan de service
+            var authHandler = new AuthHandler(authService)
+            {
+                InnerHandler = new HttpClientHandler() // De standaard handler die het echte werk doet
+            };
+
+            // 3. Maak de HttpClient die ALTIJD via jouw authHandler gaat
+            var httpClient = new HttpClient(authHandler)
+            {
+                BaseAddress = new Uri("http://localhost:5000/")
+            };
+
+            // 4. Geef de httpClient nu pas aan de authService (Dependency Injection)
+            // Je kunt een kleine methode toevoegen aan AuthService om de client later te zetten, 
+            // of de constructor aanpassen.
+            authService.SetClient(httpClient);
+
             Console.WriteLine(
                 "═══════════════════════════════════════════\n" +
                 "        DUNGEON OF NO RETURN\n" +
@@ -18,13 +43,12 @@
                 "           fight | quit\n" +
                 "═══════════════════════════════════════════");
 
-            Console.Write(" Enter your name, brave soul: ");
-            string playerName = Console.ReadLine() ?? "DefaultPlayer";
+            IAuthService finalAuth = await LoginFlow.Execute(authService);
 
-            Game game = new Game(playerName);
+            Game game = new Game(finalAuth.Username ?? "Player", finalAuth);
 
-            Console.WriteLine($"\nWelcome, {playerName}! Type 'help' for commands.\n");
-
+            Console.WriteLine($"\nWelcome, {finalAuth.Username}! Type 'help' for commands.\n");
+            
             while (!game.IsGameOver())
             {
                 Console.Write("> ");

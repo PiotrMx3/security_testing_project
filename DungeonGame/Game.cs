@@ -1,15 +1,19 @@
+using DungeonGame.Services;
+
 namespace DungeonGame
 {
     public class Game
     {
         public IPlayer Player { get; private set; }
+        public IAuthService? AuthService { get; private set; }
         public Rooms Rooms { get; private set; }
 
         // Constructor for Program.cs
-        public Game(string playerName)
+        public Game(string playerName, IAuthService? authService = null)
         {
             Rooms = GameSetup.CreateWorld();
             Player = new Player(playerName, 100);
+            AuthService = authService;
         }
 
         // Constructor for Testing
