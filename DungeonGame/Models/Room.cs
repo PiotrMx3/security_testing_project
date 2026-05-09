@@ -11,6 +11,8 @@ namespace DungeonGame
         public bool IsLocked { get; set; }
         public string? RequiredKeyName { get; set; }
         public bool BlockExitIfMonsterAlive { get; set; }
+        public bool IsEncrypted { get; set; }
+        public string? EncryptionRoomId { get; set; }
 
         public Room(string name, string description, bool isDeadly = false,
                      bool isLocked = false, string? requiredKeyName = null,

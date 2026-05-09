@@ -18,6 +18,9 @@
             start.AddExit(Direction.South, swordRoom);
             start.AddExit(Direction.West, deathRoom);
 
+            winRoom.IsEncrypted = true;
+            winRoom.EncryptionRoomId = "room1";
+
             keyRoom.AddExit(Direction.West, start);
 
             swordRoom.AddExit(Direction.North, start);
@@ -28,6 +31,7 @@
             // Items
             keyRoom.Items.Add(new Item("Key", "A rusty key.", ItemType.Key));
             swordRoom.Items.Add(new Item("Sword", "A sharp blade.", ItemType.Weapon));
+            start.Items.Add(new Item("note","A dusty note saying: GeheimKamer1", ItemType.Note));
 
             // Monsters
             monsterRoom.Monster = new Monster("Dragon", 50, 20, requiresWeapon: true);

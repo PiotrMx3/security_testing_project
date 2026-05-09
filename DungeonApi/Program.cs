@@ -151,6 +151,27 @@ namespace DungeonApi
             .WithName("Login")
             .WithOpenApi();
 
+            app.MapGet("api/rooms/{roomId}/keyshare", (string roomId, IConfiguration configuration) =>
+            {
+                var keyShare = configuration[$"RoomsKeys:{roomId}"];
+
+                if (string.IsNullOrWhiteSpace(keyShare))
+                {
+                    return Results.NotFound(new
+                    {
+                        message = $"No keyshare found for room '{roomId}'"
+                    });
+                }
+
+                return Results.Ok(new
+                {
+                    roomId,
+                    keyShare
+                });
+            })
+            .WithName("GetRoomKeyShare")
+            .WithOpenApi();
+
 
 
             app.Run();
