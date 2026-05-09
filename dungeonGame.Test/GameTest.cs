@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
+using DungeonGame.Interfaces;
 
 namespace DungeonGame.Test;
 

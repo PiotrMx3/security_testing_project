@@ -1,3 +1,5 @@
+using DungeonGame.Interfaces;
+
 namespace DungeonGame.Test;
 
 [TestFixture]

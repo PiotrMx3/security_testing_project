@@ -1,3 +1,4 @@
+using DungeonGame.Interfaces;
 using Moq;
 
 namespace DungeonGame.Test;

@@ -1,4 +1,6 @@
-﻿namespace DungeonGame
+﻿using DungeonGame.Interfaces;
+
+namespace DungeonGame
 {
     public class GameSetup
     {
