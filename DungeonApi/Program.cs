@@ -1,20 +1,20 @@
 
 using DungeonApi.Authentication;
 using FluentValidation;
-using FluentValidation.Results;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 using System.Text;
 
 namespace DungeonApi
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -25,7 +25,15 @@ namespace DungeonApi
             builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
             builder.Services.AddDbContext<AppDbContext>();
-            builder.Services.AddIdentityCore<AppUser>()
+
+            builder.Services.AddIdentityCore<AppUser>(options =>
+            {
+                options.Lockout.MaxFailedAccessAttempts = 3;
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+                options.Lockout.AllowedForNewUsers = true;
+            })
+            .AddRoles<IdentityRole>()
+            .AddSignInManager()
             .AddEntityFrameworkStores<AppDbContext>()
             .AddDefaultTokenProviders();
 
@@ -70,8 +78,56 @@ namespace DungeonApi
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
+
                 app.UseSwagger();
                 app.UseSwaggerUI();
+
+                using (var serviceScope = app.Services.CreateScope())
+                {
+                    var services = serviceScope.ServiceProvider;
+                    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+                    var userManager = services.GetRequiredService<UserManager<AppUser>>();
+                    var configuration = services.GetRequiredService<IConfiguration>();
+                    var dbContext = services.GetRequiredService<AppDbContext>();
+
+                    await dbContext.Database.EnsureDeletedAsync();
+                    await dbContext.Database.EnsureCreatedAsync();
+
+
+
+                    if (!await roleManager.RoleExistsAsync(AppRoles.User))
+                    {
+                        await roleManager.CreateAsync(new IdentityRole(AppRoles.
+                        User));
+                    }
+
+                    if (!await roleManager.RoleExistsAsync(AppRoles.
+                    Admin))
+                    {
+                        await roleManager.CreateAsync(new IdentityRole(AppRoles.
+                        Admin));
+                    }
+
+                    var adminUserName = configuration["AdminAccount:UserName"]!;
+                    var adminPassword = configuration["AdminAccount:Password"]!;
+
+                    var adminUser = await userManager.FindByNameAsync(adminUserName);
+                    if (adminUser == null)
+                    {
+                        var newAdmin = new AppUser
+                        {
+                            UserName = adminUserName,
+                            Email = "admin@dungeon.com",
+                            SecurityStamp = Guid.NewGuid().ToString()
+                        };
+
+                        var result = await userManager.CreateAsync(newAdmin, adminPassword);
+                        if (result.Succeeded)
+                            await userManager.AddToRoleAsync(newAdmin, AppRoles.Admin);
+                    }
+
+                }
+
             }
 
             app.UseHttpsRedirection();
@@ -112,7 +168,9 @@ namespace DungeonApi
 
                     var result = await userManager.CreateAsync(user, model.Password);
 
-                    if (!result.Succeeded)
+                    var roleResult = await userManager.AddToRoleAsync(user, AppRoles.User);
+
+                    if (!result.Succeeded || !roleResult.Succeeded)
                     {
                         var errors = result.Errors.ToDictionary(
                             e => e.Code,
@@ -120,18 +178,19 @@ namespace DungeonApi
                         return TypedResults.ValidationProblem(errors);
                     }
 
-                    var token = tokenService.GenerateToken(model.UserName);
+                    var token = tokenService.GenerateTokenAsync(user);
                     return TypedResults.Ok<object>(new { token });
                 })
             .WithName("Register")
             .WithOpenApi();
 
-            app.MapPost("account/login", 
+            app.MapPost("account/login",
                 async Task<Results<Ok<object>, UnauthorizedHttpResult, ValidationProblem>> (
-                LoginModel model,
-                IValidator<LoginModel> validator,
-                UserManager<AppUser> userManager,
-                ITokenService tokenService) =>
+                    LoginModel model,
+                    IValidator<LoginModel> validator,
+                    UserManager<AppUser> userManager,
+                    SignInManager<AppUser> signInManager,
+                    ITokenService tokenService) =>
                 {
                     var validation = await validator.ValidateAsync(model);
                     if (!validation.IsValid)
@@ -141,15 +200,20 @@ namespace DungeonApi
                     if (user is null)
                         return TypedResults.Unauthorized();
 
-                    var passwordValid = await userManager.CheckPasswordAsync(user, model.Password);
-                    if (!passwordValid)
+                    var result = await signInManager.CheckPasswordSignInAsync(
+                        user, model.Password, lockoutOnFailure: true);
+
+                    if (result.IsLockedOut)
                         return TypedResults.Unauthorized();
 
-                    var token = tokenService.GenerateToken(model.UserName);
+                    if (!result.Succeeded)
+                        return TypedResults.Unauthorized();
+
+                    var token = await tokenService.GenerateTokenAsync(user);
                     return TypedResults.Ok<object>(new { token });
-            })
-            .WithName("Login")
-            .WithOpenApi();
+                })
+                .WithName("Login")
+                .WithOpenApi();
 
             app.MapGet("api/rooms/{roomId}/keyshare", (string roomId, IConfiguration configuration) =>
             {
@@ -170,8 +234,38 @@ namespace DungeonApi
                 });
             })
             .WithName("GetRoomKeyShare")
+            .RequireAuthorization()
             .WithOpenApi();
 
+
+            app.MapGet("api/auth/me",
+            (ClaimsPrincipal user) =>
+            {
+                var userName = user.FindFirstValue(ClaimTypes.Name);
+                var role = user.FindFirstValue(ClaimTypes.Role);
+
+                return TypedResults.Ok(new { userName, role });
+            })
+            .WithName("Me")
+            .RequireAuthorization()
+            .WithOpenApi();
+
+
+            app.MapGet("api/rooms/keyshare/all",
+            (ClaimsPrincipal user, IConfiguration configuration) =>
+            {
+                var allKeys = configuration.GetSection("RoomsKeys")
+                    .GetChildren()
+                    .ToDictionary(x => x.Key, x => x.Value);
+
+                if (!allKeys.Any())
+                    return Results.NotFound(new { message = "No keyshares found" });
+
+                return Results.Ok(new { allKeys });
+            })
+            .RequireAuthorization(new AuthorizeAttribute { Roles = "Admin" })
+            .WithName("GetAllKeyShares")
+            .WithOpenApi();
 
 
             app.Run();
