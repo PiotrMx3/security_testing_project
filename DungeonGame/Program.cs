@@ -1,8 +1,11 @@
-﻿namespace DungeonGame
+﻿using DungeonGame.Security;
+using Microsoft.Extensions.Configuration;
+
+namespace DungeonGame
 {
     internal class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             Console.WriteLine(
                 "═══════════════════════════════════════════\n" +
@@ -21,6 +24,14 @@
             Console.Write(" Enter your name, brave soul: ");
             string playerName = Console.ReadLine() ?? "DefaultPlayer";
 
+            var configuration = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json", optional: false)
+            .Build();
+
+            var roomUnlockService = new RoomUnlockService(
+                configuration,
+                new HttpClient());
+
             Game game = new Game(playerName);
 
             Console.WriteLine($"\nWelcome, {playerName}! Type 'help' for commands.\n");
@@ -31,7 +42,7 @@
                 string input = Console.ReadLine() ?? "";
                 Console.WriteLine();
 
-                HandleCommand(input, game);
+                await HandleCommand(input, game, roomUnlockService);
 
                 game.CheckWin();
             }
@@ -46,7 +57,7 @@
             }
         }
 
-        private static void HandleCommand(string input, Game game)
+        private static async Task HandleCommand(string input, Game game, RoomUnlockService roomUnlockService)
         {
             string[] parts = input.Trim().Split(" ", 2);
             string command = parts[0].ToLower();
@@ -65,6 +76,36 @@
             }
             else if (command == "go" && parts.Length == 2)
             {
+                Direction? direction = DirectionHelper.Parse(parts[1]);
+
+                if (direction == null || !game.Rooms.CurrentRoom.HasExit(direction.Value))
+                {
+                    Console.WriteLine("You can't go that way!");
+                    return;
+                }
+
+                IRoom nextRoom = game.Rooms.CurrentRoom.Exits[direction.Value];
+
+                if (nextRoom.IsEncrypted)
+                {
+                    Console.WriteLine("This room is encrypted.");
+                    Console.Write("Enter passphrase: ");
+
+                    string passphrase = Console.ReadLine() ?? "";
+
+                    bool unlocked = await roomUnlockService.UnlockRoomAsync(
+                        nextRoom.EncryptionRoomId!,
+                        passphrase);
+
+                    if (!unlocked)
+                    {
+                        Console.WriteLine("Access denied. Wrong passphrase.");
+                        return;
+                    }
+
+                    Console.WriteLine("Room unlocked.");
+                }
+
                 bool moved = game.Move(parts[1]);
 
                 if (!game.Player.IsAlive)

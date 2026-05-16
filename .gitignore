@@ -48,3 +48,8 @@ _ReSharper*/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Certificates / encryption keys
+*.pem
+*.pfx
+*.key

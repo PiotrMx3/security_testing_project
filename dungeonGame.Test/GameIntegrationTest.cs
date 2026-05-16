@@ -78,6 +78,8 @@ namespace DungeonGame.Test
             // 2. Move back to start
             moved = game.Move("w");
             Console.WriteLine($"Move back to start: {moved}, Current room: {game.Rooms.CurrentRoom.Name}");
+            taken = game.Take("note");
+            Console.WriteLine($"Take note: {taken}");
 
             // 3. Move to sword room and take sword
             moved = game.Move("s");
@@ -129,6 +131,7 @@ namespace DungeonGame.Test
             Assert.IsTrue(game.Move("w")); // west = deathRoom
             Assert.IsFalse(player.IsAlive);
             Assert.AreEqual(0, player.Health);
+            Assert.IsTrue(game.IsGameOver());
         }
     }
 }

@@ -22,5 +22,8 @@ namespace DungeonGame
         bool CanEnter(IInventory inventory);
         IItem? TakeItem(string itemName);
         string Describe();
+        // encripted room
+        bool IsEncrypted { get; set; }
+        string? EncryptionRoomId { get; set; }
     }
 }
