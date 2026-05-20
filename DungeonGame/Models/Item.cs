@@ -4,7 +4,8 @@ namespace DungeonGame
     {
         Weapon,
         Key,
-        Consumable
+        Consumable,
+        Note
     }
 
     /// <summary>

@@ -55,7 +55,7 @@ namespace DungeonGame
                 string input = Console.ReadLine() ?? "";
                 Console.WriteLine();
 
-                HandleCommand(input, game);
+                await HandleCommand(input, game, roomUnlockService);
 
                 game.CheckWin();
             }
@@ -70,7 +70,7 @@ namespace DungeonGame
             }
         }
 
-        private static void HandleCommand(string input, Game game)
+        private static async Task HandleCommand(string input, Game game, RoomUnlockService roomUnlockService)
         {
             string[] parts = input.Trim().Split(" ", 2);
             string command = parts[0].ToLower();
@@ -89,6 +89,36 @@ namespace DungeonGame
             }
             else if (command == "go" && parts.Length == 2)
             {
+                Direction? direction = DirectionHelper.Parse(parts[1]);
+
+                if (direction == null || !game.Rooms.CurrentRoom.HasExit(direction.Value))
+                {
+                    Console.WriteLine("You can't go that way!");
+                    return;
+                }
+
+                IRoom nextRoom = game.Rooms.CurrentRoom.Exits[direction.Value];
+
+                if (nextRoom.IsEncrypted)
+                {
+                    Console.WriteLine("This room is encrypted.");
+                    Console.Write("Enter passphrase: ");
+
+                    string passphrase = Console.ReadLine() ?? "";
+
+                    bool unlocked = await roomUnlockService.UnlockRoomAsync(
+                        nextRoom.EncryptionRoomId!,
+                        passphrase);
+
+                    if (!unlocked)
+                    {
+                        Console.WriteLine("Access denied. Wrong passphrase.");
+                        return;
+                    }
+
+                    Console.WriteLine("Room unlocked.");
+                }
+
                 bool moved = game.Move(parts[1]);
 
                 if (!game.Player.IsAlive)

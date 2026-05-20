@@ -17,7 +17,7 @@ namespace DungeonGame
         }
 
         // Constructor for Testing
-        public Game(IPlayer player, Rooms rooms)
+        public Game(IPlayer player, IRooms rooms)
         {
             Player = player;
             Rooms = rooms;
