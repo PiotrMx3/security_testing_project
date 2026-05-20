@@ -1,4 +1,5 @@
 using DungeonGame.Services;
+using DungeonGame.Interfaces;
 
 namespace DungeonGame
 {
@@ -6,7 +7,7 @@ namespace DungeonGame
     {
         public IPlayer Player { get; private set; }
         public IAuthService? AuthService { get; private set; }
-        public Rooms Rooms { get; private set; }
+        public IRooms Rooms { get; private set; }
 
         // Constructor for Program.cs
         public Game(string playerName, IAuthService? authService = null)
@@ -30,7 +31,7 @@ namespace DungeonGame
             if (direction == null)
                 return false;
 
-            return Rooms.Move(direction.Value, Player);
+            return Rooms.Move(direction.Value, Player, AuthService);
         }
 
         public bool Take(string itemName)

@@ -1,6 +1,4 @@
-﻿using DungeonGame.Interfaces;
-
-namespace DungeonGame
+﻿namespace DungeonGame.Interfaces
 {
     public interface IPlayer
     {

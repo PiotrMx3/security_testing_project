@@ -1,6 +1,9 @@
 ﻿using DungeonGame.Infrastructure;
+using DungeonGame.Interfaces;
+using DungeonGame.Security;
 using DungeonGame.Services;
 using DungeonGame.UI;
+using Microsoft.Extensions.Configuration;
 using System.Xml.Linq;
 
 namespace DungeonGame
@@ -44,6 +47,14 @@ namespace DungeonGame
                 "═══════════════════════════════════════════");
 
             IAuthService finalAuth = await LoginFlow.Execute(authService);
+
+            var configuration = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json", optional: false)
+            .Build();
+
+            var roomUnlockService = new RoomUnlockService(
+                configuration,
+                httpClient);
 
             Game game = new Game(finalAuth.Username ?? "Player", finalAuth);
 
@@ -101,24 +112,39 @@ namespace DungeonGame
 
                 if (nextRoom.IsEncrypted)
                 {
-                    Console.WriteLine("This room is encrypted.");
-                    Console.Write("Enter passphrase: ");
-
-                    string passphrase = Console.ReadLine() ?? "";
-
-                    bool unlocked = await roomUnlockService.UnlockRoomAsync(
-                        nextRoom.EncryptionRoomId!,
-                        passphrase);
-
-                    if (!unlocked)
+                    // SEC-14: Admin noclip bypass. 
+                    // De Admin mag naar binnen, maar de content blijft versleuteld (onleesbaar) omdat er geen sleutel is gebruikt.
+                    if (game.AuthService?.UserRole == "Admin")
                     {
-                        Console.WriteLine("Access denied. Wrong passphrase.");
-                        return;
+                        Console.WriteLine("[Admin Noclip] As an admin, you bypass the encryption barrier and enter the room. Content remains encrypted.");
                     }
+                    else
+                    {
+                        Console.WriteLine("This room is encrypted.");
+                        Console.Write("Enter passphrase: ");
 
-                    Console.WriteLine("Room unlocked.");
+                        string passphrase = Console.ReadLine() ?? "";
+
+                        // SEC-13 / SEC-15: Roep de nieuwe methode aan die de keyshare ophaalt en ontsleutelt
+                        string? decryptedText = await roomUnlockService.UnlockAndDecryptRoomAsync(
+                            nextRoom.EncryptionRoomId!,
+                            passphrase);
+
+                        // Als de passphrase fout was of de server offline, kregen we 'null' terug
+                        if (decryptedText == null)
+                        {
+                            Console.WriteLine("Access denied. Wrong passphrase or server error.");
+                            return; // Regular spelers worden nu netjes geblokkeerd
+                        }
+
+                        // SEC-13: SUCCES! Overschrijf de versleutelde omschrijving met de échte ontsleutelde tekst.
+                        nextRoom.Description = decryptedText;
+                        nextRoom.IsEncrypted = false; // Zorg dat de speler niet nógmaals hoeft te ontsleutelen bij terugkomst
+                        Console.WriteLine("Room successfully decrypted!");
+                    }
                 }
 
+                // Voer de daadwerkelijke verplaatsing uit in de game status
                 bool moved = game.Move(parts[1]);
 
                 if (!game.Player.IsAlive)

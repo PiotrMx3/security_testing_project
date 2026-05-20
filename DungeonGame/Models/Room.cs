@@ -114,34 +114,9 @@ namespace DungeonGame
         /// <returns>Een geformatteerde string met de naam, omschrijving, items, monsters en uitgangen.</returns>
         public string Describe()
         {
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine($"\n=== {Name} ===");
-            sb.AppendLine(Description);
-
-            // Toon de lijst met items als de kamer niet leeg is.
-            if (Items.Any())
-            {
-                sb.AppendLine("\nItems in deze kamer:");
-                foreach (IItem item in Items)
-                {
-                    sb.AppendLine($"  - {item}");
-                }
-            }
-
-            // Toon informatie over het monster als er een levend monster aanwezig is.
-            if (Monster != null && Monster.IsAlive)
-            {
-                sb.AppendLine($"\nPas op! Er staat een monster: {Monster.Name} (HP: {Monster.Health})");
-            }
-
-            // Toon een overzicht van de beschikbare windrichtingen voor navigatie.
-            sb.Append("\nUitgangen:");
-            foreach (var exit in Exits)
-            {
-                sb.Append($" {exit.Key}");
-            }
-
-            return sb.ToString();
+            return $"{Environment.NewLine}=== {Name} ==={Environment.NewLine}" +
+                   $"{Description}{Environment.NewLine}" +
+                   $"{Environment.NewLine}Exits:{Environment.NewLine}";
         }
     }
 }

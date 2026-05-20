@@ -13,6 +13,7 @@ namespace DungeonGame.Test.RoomTests
     {
         private IRoom _room;
         private Mock<IInventory> _mockInventory;
+        private Mock<IAuthService> _mockAuthService;
 
         [SetUp]
         public void Setup()
@@ -26,6 +27,8 @@ namespace DungeonGame.Test.RoomTests
                 );
             // We maken een mocked Inventory
             _mockInventory = new Mock<IInventory>();
+            // We maken een mocked AuthService
+            _mockAuthService = new Mock<IAuthService>();
         }
         [Test]
         public void CanEnter_LockedRoomWithCorrectKey_ReturnsTrue()
@@ -33,7 +36,7 @@ namespace DungeonGame.Test.RoomTests
             // 1. ARRANGE
             _mockInventory.Setup(i => i.HasKey("Gouden sleutel")).Returns(true);
             // 2. ACT
-            bool result = _room.CanEnter(_mockInventory.Object);
+            bool result = _room.CanEnter(_mockInventory.Object, _mockAuthService.Object);
             // 3. ASSERT
             Assert.That(result, Is.True);
         }
@@ -43,7 +46,7 @@ namespace DungeonGame.Test.RoomTests
             // 1. ARRANGE
             _mockInventory.Setup(i => i.HasKey("Gouden sleutel")).Returns(false);
             // 2. ACT
-            bool result = _room.CanEnter(_mockInventory.Object);
+            bool result = _room.CanEnter(_mockInventory.Object, _mockAuthService.Object);
             // 3. ASSERT
             Assert.That(result, Is.False);
         }

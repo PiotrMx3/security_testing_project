@@ -27,9 +27,9 @@ namespace DungeonGame.Test.RoomTests
         {
             // 1. ARRANGE (Word gedaan in SetUp)
             // Let op de @ voor de string (verbatim string), dit maakt het makkelijker met enters.
-            string expected = "\n=== Boven ===\n" +
-                              "Een kamer met een deur\n" +
-                              "\nExits:\n";
+            string expected = $"{Environment.NewLine}=== Boven ==={Environment.NewLine}" +
+                      $"Een kamer met een deur{Environment.NewLine}" +
+                      $"{Environment.NewLine}Exits:{Environment.NewLine}";
             // 2. ACT
             string result = _room.Describe();
             // 3. ASSERT

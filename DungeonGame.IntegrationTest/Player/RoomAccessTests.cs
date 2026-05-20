@@ -1,4 +1,7 @@
-﻿namespace DungeonGame.IntegrationTest;
+﻿using DungeonGame.Interfaces;
+using DungeonGame.Services;
+
+namespace DungeonGame.IntegrationTest;
 [TestFixture]
 public class RoomAccessTests
 {
@@ -7,12 +10,14 @@ public class RoomAccessTests
     private IRoom _keyRoom;
     private IRoom _winRoom;
     private IRooms _world;
+    private IAuthService _authService;
 
     [SetUp]
     public void Setup()
     {
         _player = new Player("Held", 100);
-        
+        _authService = new AuthService();
+
         _startRoom = new Room("Start", "Het begin");
         _keyRoom = new Room("Sleutelkamer", "Hier ligt de sleutel");
         _winRoom = new Room("Eindkamer", "De uitgang!", isLocked: true, requiredKeyName: "Gouden sleutel");
@@ -30,7 +35,7 @@ public class RoomAccessTests
     {
         // 1. ARRANGE - Niet nodig in deze test (SetUp is voldoende)
         // 2. ACT
-        bool result = _world.Move(Direction.North, _player);
+        bool result = _world.Move(Direction.North, _player, _authService);
         // 3. ASSERT
         Assert.Multiple(() => 
         {
@@ -46,14 +51,14 @@ public class RoomAccessTests
         _keyRoom.Items.Add(key);
         // 2. ACT - We gaan naar de keyroom en pakken de key en voegen deze toe aan onze Inventory.
         // -------- We keren terug naar de start kamer en proberen de _winRoom binnen te gaan. 
-        _world.Move(Direction.East, _player);
-        IItem pickedUp = _world.CurrentRoom.TakeItem("Gouden sleutel");
+        _world.Move(Direction.East, _player, _authService);
+        IItem? pickedUp = _world.CurrentRoom.TakeItem("Gouden sleutel");
         if (pickedUp != null)
         {
             _player.Inventory.Add(pickedUp);
         }
-        _world.Move(Direction.North, _player);
-        bool result = _world.Move(Direction.North, _player);
+        _world.Move(Direction.North, _player, _authService);
+        bool result = _world.Move(Direction.North, _player, _authService);
         // 3. ASSERT
         Assert.That(result, Is.True, "Met een sleutel kunnen we de kamer binnen");
         Assert.That(_world.CurrentRoom, Is.EqualTo(_winRoom));

@@ -11,6 +11,7 @@ public class RoomsTests
     {
         var mockPlayer = new Mock<IPlayer>();
         var mockMonster = new Mock<IMonster>();
+        var mockAuthService = new Mock<IAuthService>();
 
         mockMonster.Setup(m => m.IsAlive).Returns(true);
         mockPlayer.SetupProperty(p => p.Health, 100);
@@ -24,7 +25,7 @@ public class RoomsTests
 
         var rooms = new Rooms(new List<IRoom> { startRoom, nextRoom }, startRoom);
 
-        rooms.Move(Direction.North, mockPlayer.Object);
+        rooms.Move(Direction.North, mockPlayer.Object, mockAuthService.Object);
 
         Assert.AreEqual(0, mockPlayer.Object.Health);
         Assert.AreEqual(startRoom, rooms.CurrentRoom);
@@ -43,7 +44,8 @@ public class RoomsTests
         startRoom.AddExit(Direction.North, nextRoom);
 
         var rooms = new Rooms(new List<IRoom> { startRoom, nextRoom }, startRoom);
-        rooms.Move(Direction.North, mockPlayer.Object);
+        var mockAuthService = new Mock<IAuthService>();
+        rooms.Move(Direction.North, mockPlayer.Object, mockAuthService.Object);
         Assert.AreEqual(100, mockPlayer.Object.Health);
     }
     [Test]
@@ -52,8 +54,9 @@ public class RoomsTests
         var mockPlayer = new Mock<IPlayer>();
         var startRoom = new Room("Start", "Starting room");
         var rooms = new Rooms(new List<IRoom> { startRoom }, startRoom);
+        var mockAuthService = new Mock<IAuthService>();
 
-        bool result = rooms.Move(Direction.North, mockPlayer.Object);
+        bool result = rooms.Move(Direction.North, mockPlayer.Object, mockAuthService.Object);
 
         Assert.False(result);
         Assert.AreEqual(startRoom, rooms.CurrentRoom);
@@ -71,8 +74,9 @@ public class RoomsTests
         startRoom.AddExit(Direction.North, lockedRoom);
 
         var rooms = new Rooms(new List<IRoom> { startRoom, lockedRoom }, startRoom);
+        var mockAuthService = new Mock<IAuthService>();
 
-        bool result = rooms.Move(Direction.North, mockPlayer.Object);
+        bool result = rooms.Move(Direction.North, mockPlayer.Object, mockAuthService.Object);
 
         Assert.False(result);
         mockInventory.Verify(i => i.HasKey("Golden Key"), Times.Once);
@@ -90,8 +94,9 @@ public class RoomsTests
         startRoom.AddExit(Direction.North, deadlyRoom);
 
         var rooms = new Rooms(new List<IRoom> { startRoom, deadlyRoom }, startRoom);
+        var mockAuthService = new Mock<IAuthService>();
 
-        bool result = rooms.Move(Direction.North, mockPlayer.Object);
+        bool result = rooms.Move(Direction.North, mockPlayer.Object, mockAuthService.Object);
 
         Assert.True(result);
         Assert.AreEqual(0, mockPlayer.Object.Health);
@@ -109,7 +114,8 @@ public class RoomsTests
 
         startRoom.AddExit(Direction.North, lockedRoom);
         var rooms = new Rooms(new List<IRoom> { startRoom, lockedRoom }, startRoom);
-        bool result = rooms.Move(Direction.North, mockPlayer.Object);
+        var mockAuthService = new Mock<IAuthService>();
+        bool result = rooms.Move(Direction.North, mockPlayer.Object, mockAuthService.Object);
 
       
         Assert.True(result);

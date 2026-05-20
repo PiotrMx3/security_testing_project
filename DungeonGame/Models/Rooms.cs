@@ -33,12 +33,12 @@ namespace DungeonGame
         /// <param name="player">De speler die zich verplaatst.</param>
         /// <param name="authService">De authenticatie-dienst voor rol-gebaseerde toegang (SEC-14).</param>
         /// <returns>True als de verplaatsing is gelukt.</returns>
-        public bool Move(Direction direction, IPlayer player, IAuthService authService)
+        public bool Move(Direction direction, IPlayer player, IAuthService? authService)
         {
             // SEC-14: Als een Admin 'noclip' heeft, negeert hij ook de blokkade door monsters?
             // In de meeste games betekent noclip dat je overal langs mag. 
             // Wil je dat de Admin ook veilig langs monsters kan? Dan voegen we dit toe:
-            bool isAdmin = authService.UserRole == "Admin";
+            bool isAdmin = authService?.UserRole == "Admin";
 
             // Check: monster blocks exit
             if (!isAdmin && CurrentRoom.BlockExitIfMonsterAlive

@@ -52,5 +52,8 @@ namespace DungeonGame
         /// </summary>
         /// <returns>Een string met de naam, omschrijving, items, monsters en uitgangen.</returns>
         string Describe();
+        // encrypted room
+        bool IsEncrypted { get; set; }
+        string? EncryptionRoomId { get; set; }
     }
 }

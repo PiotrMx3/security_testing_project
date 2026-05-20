@@ -46,10 +46,9 @@ namespace DungeonGame
         /// Controleert of er een item met een specifieke naam aanwezig is.
         /// </summary>
         /// <param name="name">De naam van het item waarnaar gezocht wordt.</param>
-        /// <returns>True als een item met deze naam is gevonden (hoofdletterongevoelig).</returns>
-        /// <remarks>Maakt gebruik van SEC-15 principes voor robuuste string-vergelijking.</remarks>
+        /// <returns>True als een item met deze naam is gevonden.</returns>
         public bool Contains(string name) =>
-            Items.Any(i => i.Name.Equals(name?.Trim(), StringComparison.OrdinalIgnoreCase));
+            Items.Any(i => i.Name.Equals(name?.Trim(), StringComparison.Ordinal));
 
         /// <summary>
         /// Controleert specifiek of de speler een bepaalde sleutel bezit. 
@@ -57,9 +56,8 @@ namespace DungeonGame
         /// </summary>
         /// <param name="keyName">De naam van de benodigde sleutel.</param>
         /// <returns>True als een item van het type 'Key' met de juiste naam aanwezig is.</returns>
-        /// <remarks>Onderdeel van de toegangscontrole-keten (SEC-14/15).</remarks>
         public bool HasKey(string keyName) =>
-            Items.Any(i => i.Type == ItemType.Key && i.Name.Equals(keyName?.Trim(), StringComparison.OrdinalIgnoreCase));
+            Items.Any(i => i.Type == ItemType.Key && i.Name.Equals(keyName?.Trim(), StringComparison.Ordinal));
 
         /// <summary>
         /// Controleert of de inventory minimaal één item bevat van het type 'Weapon'.

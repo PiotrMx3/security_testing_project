@@ -1,67 +1,89 @@
 ﻿using Microsoft.Extensions.Configuration;
+using System;
+using System.Net.Http;
 using System.Net.Http.Json;
+using System.Threading.Tasks;
 
 namespace DungeonGame.Security
 {
+    /// <summary>
+    /// Service die verantwoordelijk is voor het controleren van kamersleutels bij de API en het initiëren van decryptie.
+    /// </summary>
     public class RoomUnlockService
     {
-        // Hiermee lezen we waarden uit appsettings.json
         private readonly IConfiguration _configuration;
-
-        // Hiermee maken we HTTP-calls naar de API
         private readonly HttpClient _httpClient;
 
-        // Constructor krijgt configuration en HttpClient binnen
-        public RoomUnlockService(
-            IConfiguration configuration,
-            HttpClient httpClient)
+        /// <summary>
+        /// Initialiseert een nieuwe instantie van de <see cref="RoomUnlockService"/> klasse.
+        /// </summary>
+        /// <param name="configuration">De configuratie om de verwachte hashes uit te lezen.</param>
+        /// <param name="httpClient">De (beveiligde) HTTP-client voor API-communicatie.</param>
+        public RoomUnlockService(IConfiguration configuration, HttpClient httpClient)
         {
             _configuration = configuration;
             _httpClient = httpClient;
         }
 
-        // Methode die controleert of een room unlocked mag worden
-        public async Task<bool> UnlockRoomAsync(string roomId, string passphrase)
+        /// <summary>
+        /// SEC-13/15: Haalt de keyshare op via de beveiligde API, controleert de passphrase via een hash,
+        /// en ontsleutelt het lokale .enc bestand bij succes.
+        /// </summary>
+        /// <param name="roomId">Het unieke ID van de kamer.</param>
+        /// <param name="passphrase">De door de speler ingevoerde passphrase.</param>
+        /// <returns>De ontsleutelde omschrijving van de kamer, of null als de toegang geweigerd is.</returns>
+        public async Task<string?> UnlockAndDecryptRoomAsync(string roomId, string passphrase)
         {
-            // Call naar de API om de keyshare van de room op te halen
-            var response = await _httpClient
-                .GetFromJsonAsync<KeyShareResponse>(
-                    $"http://localhost:5234/api/rooms/{roomId}/keyshare");
+            try
+            {
+                // SEC-12: Relatieve URL zodat de call via BaseAddress én de AuthHandler (JWT) loopt
+                var response = await _httpClient.GetFromJsonAsync<KeyShareResponse>($"api/rooms/{roomId}/keyshare");
 
-            // Als API niets terugstuurt => unlock mislukt
-            if (response == null)
-                return false;
+                if (response == null || string.IsNullOrWhiteSpace(response.KeyShare))
+                    return null;
 
-            // Verwachte hash ophalen uit appsettings.jsonSystem.Net.Http.HttpRequestException: 'Kan geen verbinding maken omdat de doelcomputer de verbinding actief heeft geweigerd. (localhost:5234)'
+                // Haal de verwachte hash op uit appsettings.json van de client
+                var expectedHash = _configuration[$"ExpectedHash:{roomId}"];
+                if (string.IsNullOrWhiteSpace(expectedHash))
+                    return null;
 
-            var expectedHash = _configuration[$"ExpectedHash:{roomId}"];
+                // Genereer de controle-hash op basis van de API-keyshare en gebruikersinput
+                var computedHash = HashService.ComputeHash(response.KeyShare, passphrase);
 
-            // Als er geen hash bestaat voor deze room => unlock mislukt
-            if (string.IsNullOrWhiteSpace(expectedHash))
-                return false;
+                // Vergelijk de hashes om te zien of het wachtwoord correct is
+                if (computedHash.Equals(expectedHash, StringComparison.OrdinalIgnoreCase))
+                {
+                    // SEC-13: Wachtwoord is correct! Roep de DecryptionService aan om het lokale .enc bestand te kraken
+                    string decryptedContent = DecryptionService.DecryptRoomFile(roomId, response.KeyShare, passphrase);
+                    return decryptedContent;
+                }
 
-            // Nieuwe hash genereren op basis van:
-            // API keyshare + user passphrase
-            var computedHash =
-                HashService.ComputeHash(response.KeyShare, passphrase);
-
-            // Vergelijken:
-            // gegenereerde hash vs verwachte hash
-            // true = correcte passphrase
-            // false = foute passphrase
-            return computedHash.Equals(
-                expectedHash,
-                StringComparison.OrdinalIgnoreCase);
+                return null; // Wachtwoord was fout
+            }
+            catch (HttpRequestException)
+            {
+                // SEC-15: Server offline of 401/403/500 error opvangen zonder dat de game crasht
+                Console.WriteLine("[Netwerk Fout] Kan geen veilige verbinding maken met de sleutel-server.");
+                return null;
+            }
+            catch (Exception ex)
+            {
+                // SEC-15: Catch-all om onverwachte runtime crashes te voorkomen
+                Console.WriteLine($"[Fout] Probleem bij het ontgrendelen: {ex.Message}");
+                return null;
+            }
         }
     }
 
-    // Klasse die overeenkomt met de JSON response van de API
+    /// <summary>
+    /// Hulpklasse (Data Transfer Object) die overeenkomt met de JSON-response van de GetRoomKeyShare API.
+    /// </summary>
     public class KeyShareResponse
     {
-        // Room identifier
+        /// <summary>Het unieke ID van de opgevraagde kamer.</summary>
         public string RoomId { get; set; } = "";
 
-        // Keyshare afkomstig van API
+        /// <summary>De cryptografische keyshare afkomstig van de database/API.</summary>
         public string KeyShare { get; set; } = "";
     }
 }

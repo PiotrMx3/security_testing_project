@@ -1,4 +1,5 @@
 ﻿using DungeonGame.Interfaces;
+using DungeonGame.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +18,7 @@ namespace DungeonGame.Test
         private IRoom monsterRoom;
         private IRoom deathRoom;
         private IRoom winRoom;
+        private IAuthService authService;
 
         [SetUp]
         public void Setup()
@@ -52,6 +54,11 @@ namespace DungeonGame.Test
             // Monster
             // ---------------------------
             monsterRoom.Monster = new Monster("Dragon", 30, 10, requiresWeapon: true);
+
+            // ---------------------------
+            // AuthService (stub)
+            // ---------------------------
+            authService = new AuthService();
 
             // ---------------------------
             // Rooms object
@@ -106,7 +113,7 @@ namespace DungeonGame.Test
             Console.WriteLine($"Moved to: {game.Rooms.CurrentRoom.Name}");
 
             // 7. Unlock and move to win room
-            Console.WriteLine($"Can enter winRoom? {winRoom.CanEnter(player.Inventory)}");
+            Console.WriteLine($"Can enter winRoom? {winRoom.CanEnter(player.Inventory, authService)}");
             Console.WriteLine($"winRoom.IsLocked: {winRoom.IsLocked}");
             Console.WriteLine($"Has Key: {player.Inventory.HasKey("Key")}");
 
