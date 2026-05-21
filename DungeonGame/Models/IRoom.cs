@@ -25,5 +25,6 @@ namespace DungeonGame
         // encripted room
         bool IsEncrypted { get; set; }
         string? EncryptionRoomId { get; set; }
+        string? EncryptedFilePath { get; set; }
     }
 }

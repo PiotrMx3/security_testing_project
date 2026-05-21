@@ -21,16 +21,67 @@ namespace DungeonGame
                 "           fight | quit\n" +
                 "═══════════════════════════════════════════");
 
-            Console.Write(" Enter your name, brave soul: ");
-            string playerName = Console.ReadLine() ?? "DefaultPlayer";
-
             var configuration = new ConfigurationBuilder()
-            .AddJsonFile("appsettings.json", optional: false)
-            .Build();
+                .AddJsonFile("appsettings.json", optional: false)
+                .Build();
 
             var roomUnlockService = new RoomUnlockService(
                 configuration,
                 new HttpClient());
+
+            Console.Write(" Enter your name, brave soul: ");
+            string playerName = Console.ReadLine() ?? "DefaultPlayer";
+
+            Console.WriteLine("1. Login");
+            Console.WriteLine("2. Register");
+            Console.Write("> ");
+
+            string choice = Console.ReadLine() ?? "";
+
+            string jwtToken = "";
+
+            if (choice == "2")
+            {
+                Console.Write("Choose username: ");
+                string registerUser = Console.ReadLine() ?? "";
+
+                Console.Write("Choose email: ");
+                string registerEmail = Console.ReadLine() ?? "";
+
+                Console.Write("Choose password: ");
+                string registerPassword = Console.ReadLine() ?? "";
+
+                try
+                {
+                    await roomUnlockService.RegisterAsync(
+                        registerUser,
+                        registerEmail,
+                        registerPassword);
+
+                    Console.WriteLine("Registration successful.\n");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Registration failed: {ex.Message}");
+                    return;
+                }
+            }
+
+            Console.Write("Username: ");
+            string userName = Console.ReadLine() ?? "";
+
+            Console.Write("Password: ");
+            string password = Console.ReadLine() ?? "";
+
+            try
+            {
+                jwtToken = await roomUnlockService.LoginAsync(userName, password);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Login failed: {ex.Message}");
+                return;
+            }
 
             Game game = new Game(playerName);
 
@@ -42,7 +93,7 @@ namespace DungeonGame
                 string input = Console.ReadLine() ?? "";
                 Console.WriteLine();
 
-                await HandleCommand(input, game, roomUnlockService);
+                await HandleCommand(input, game, roomUnlockService, jwtToken);
 
                 game.CheckWin();
             }
@@ -57,7 +108,7 @@ namespace DungeonGame
             }
         }
 
-        private static async Task HandleCommand(string input, Game game, RoomUnlockService roomUnlockService)
+        private static async Task HandleCommand( string input, Game game, RoomUnlockService roomUnlockService, string jwtToken)
         {
             string[] parts = input.Trim().Split(" ", 2);
             string command = parts[0].ToLower();
@@ -93,17 +144,23 @@ namespace DungeonGame
 
                     string passphrase = Console.ReadLine() ?? "";
 
-                    bool unlocked = await roomUnlockService.UnlockRoomAsync(
-                        nextRoom.EncryptionRoomId!,
-                        passphrase);
+                    string roomId = nextRoom.EncryptionRoomId ?? "";
+                    string encryptedFilePath = nextRoom.EncryptedFilePath ?? "";
 
-                    if (!unlocked)
+                    try
                     {
-                        Console.WriteLine("Access denied. Wrong passphrase.");
-                        return;
-                    }
+                        string decryptedText = await roomUnlockService.DecryptRoomAsync(roomId, encryptedFilePath, passphrase, jwtToken);
 
-                    Console.WriteLine("Room unlocked.");
+                        Console.WriteLine(decryptedText);
+                    }
+                    catch (System.Security.Cryptography.CryptographicException)
+                    {
+                        Console.WriteLine("Foute passphrase. De kamer blijft vergrendeld.");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Kamer kon niet ontsleuteld worden: {ex.Message}");
+                    }
                 }
 
                 bool moved = game.Move(parts[1]);

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
 namespace DungeonGame.Security
@@ -12,56 +13,82 @@ namespace DungeonGame.Security
         private readonly HttpClient _httpClient;
 
         // Constructor krijgt configuration en HttpClient binnen
-        public RoomUnlockService(
-            IConfiguration configuration,
-            HttpClient httpClient)
+        public RoomUnlockService(IConfiguration configuration, HttpClient httpClient)
         {
             _configuration = configuration;
             _httpClient = httpClient;
         }
 
-        // Methode die controleert of een room unlocked mag worden
-        public async Task<bool> UnlockRoomAsync(string roomId, string passphrase)
+        // Methode die controleert of een room unlocked mag worden +jwt token controle
+        public async Task<string> DecryptRoomAsync(string roomId, string encryptedFilePath, string passphrase, string jwtToken)
         {
-            // Call naar de API om de keyshare van de room op te halen
+            // 1. JWT meegeven
+            _httpClient.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", jwtToken);
+
+            // 2. Keyshare ophalen via API
             var response = await _httpClient
                 .GetFromJsonAsync<KeyShareResponse>(
-                    $"http://localhost:5234/api/rooms/{roomId}/keyshare");
+                    $"https://localhost:7100/api/rooms/{roomId}/keyshare");
 
-            // Als API niets terugstuurt => unlock mislukt
-            if (response == null)
-                return false;
+            if (response == null || string.IsNullOrWhiteSpace(response.KeyShare))
+                throw new InvalidOperationException("Keyshare kon niet opgehaald worden.");
 
-            // Verwachte hash ophalen uit appsettings.jsonSystem.Net.Http.HttpRequestException: 'Kan geen verbinding maken omdat de doelcomputer de verbinding actief heeft geweigerd. (localhost:5234)'
+            // 3. AES-key maken
+            byte[] aesKey = HashService.ComputeAesKey(response.KeyShare, passphrase);
 
-            var expectedHash = _configuration[$"ExpectedHash:{roomId}"];
+            // 4. .enc-bestand lezen
+            byte[] encryptedData = await File.ReadAllBytesAsync(encryptedFilePath);
 
-            // Als er geen hash bestaat voor deze room => unlock mislukt
-            if (string.IsNullOrWhiteSpace(expectedHash))
-                return false;
+            // 5. Decrypt proberen
+            // Bij verkeerde passphrase gooit deze normaal een CryptographicException
+            return AesEncryptionService.Decrypt(encryptedData, aesKey);
+        }
+        public async Task<string> LoginAsync(string userName, string password)
+        {
+            var response = await _httpClient.PostAsJsonAsync(
+                "https://localhost:7100/account/login",
+                new
+                {
+                    userName,
+                    password
+                });
 
-            // Nieuwe hash genereren op basis van:
-            // API keyshare + user passphrase
-            var computedHash =
-                HashService.ComputeHash(response.KeyShare, passphrase);
+            response.EnsureSuccessStatusCode();
 
-            // Vergelijken:
-            // gegenereerde hash vs verwachte hash
-            // true = correcte passphrase
-            // false = foute passphrase
-            return computedHash.Equals(
-                expectedHash,
-                StringComparison.OrdinalIgnoreCase);
+            var result = await response.Content.ReadFromJsonAsync<LoginResponse>();
+
+            return result?.Token ?? throw new InvalidOperationException("Geen token ontvangen.");
+        }
+
+        public async Task RegisterAsync(string userName, string email, string password)
+        {
+            var response = await _httpClient.PostAsJsonAsync(
+                "https://localhost:7100/account/register",
+                new
+                {
+                    userName,
+                    email,
+                    password
+                });
+
+        }
+
+
+        // Klasse die overeenkomt met de JSON response van de API
+        public class KeyShareResponse
+        {
+            // Room identifier
+            public string RoomId { get; set; } = "";
+
+            // Keyshare afkomstig van API
+            public string KeyShare { get; set; } = "";
+        }
+
+        public class LoginResponse
+        {
+            public string Token { get; set; } = "";
         }
     }
 
-    // Klasse die overeenkomt met de JSON response van de API
-    public class KeyShareResponse
-    {
-        // Room identifier
-        public string RoomId { get; set; } = "";
-
-        // Keyshare afkomstig van API
-        public string KeyShare { get; set; } = "";
-    }
 }

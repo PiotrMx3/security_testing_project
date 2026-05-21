@@ -20,6 +20,7 @@
 
             winRoom.IsEncrypted = true;
             winRoom.EncryptionRoomId = "room1";
+            winRoom.EncryptedFilePath = "EncryptedRooms/room_treasure.enc";
 
             keyRoom.AddExit(Direction.West, start);
 
