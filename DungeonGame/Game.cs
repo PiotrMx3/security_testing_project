@@ -1,15 +1,20 @@
+using DungeonGame.Services;
+using DungeonGame.Interfaces;
+
 namespace DungeonGame
 {
     public class Game
     {
         public IPlayer Player { get; private set; }
+        public IAuthService? AuthService { get; private set; }
         public IRooms Rooms { get; private set; }
 
         // Constructor for Program.cs
-        public Game(string playerName)
+        public Game(string playerName, IAuthService? authService = null)
         {
             Rooms = GameSetup.CreateWorld();
             Player = new Player(playerName, 100);
+            AuthService = authService;
         }
 
         // Constructor for Testing
@@ -26,7 +31,7 @@ namespace DungeonGame
             if (direction == null)
                 return false;
 
-            return Rooms.Move(direction.Value, Player);
+            return Rooms.Move(direction.Value, Player, AuthService);
         }
 
         public bool Take(string itemName)

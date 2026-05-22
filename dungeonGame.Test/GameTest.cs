@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
+using DungeonGame.Interfaces;
 
 namespace DungeonGame.Test;
 
@@ -15,6 +16,7 @@ public class GameTest
     private Mock<IRooms> mockRooms;
     private Mock<IInventory> mockInventory;
     private Mock<IRoom> mockRoom;
+    private Mock<IAuthService> mockAuthService;
 
     [SetUp]
     public void Setup()
@@ -23,6 +25,7 @@ public class GameTest
         mockRooms = new Mock<IRooms>();
         mockInventory = new Mock<IInventory>();
         mockRoom = new Mock<IRoom>();
+        mockAuthService = new Mock<IAuthService>();
 
         mockPlayer.Setup(p => p.Inventory).Returns(mockInventory.Object);
         mockRooms.Setup(r => r.CurrentRoom).Returns(mockRoom.Object);
@@ -36,14 +39,14 @@ public class GameTest
         bool result = game.Move("x");
 
         Assert.That(result, Is.False);
-        mockRooms.Verify(r => r.Move(It.IsAny<Direction>(), It.IsAny<IPlayer>()), Times.Never);
+        mockRooms.Verify(r => r.Move(It.IsAny<Direction>(), It.IsAny<IPlayer>(), It.IsAny<IAuthService?>()), Times.Never);
     }
 
     [Test]
     public void Move_ValidDirection_CallsRoomsMove()
     {
         mockRooms
-            .Setup(r => r.Move(Direction.East, mockPlayer.Object))
+            .Setup(r => r.Move(Direction.East, mockPlayer.Object, It.IsAny<IAuthService?>()))
             .Returns(true);
 
         var game = new Game(mockPlayer.Object, mockRooms.Object);
@@ -51,7 +54,7 @@ public class GameTest
         bool result = game.Move("e");
 
         Assert.That(result, Is.True);
-        mockRooms.Verify(r => r.Move(Direction.East, mockPlayer.Object), Times.Once);
+        mockRooms.Verify(r => r.Move(Direction.East, mockPlayer.Object, It.IsAny<IAuthService?>()), Times.Once);
     }
 
     [Test]

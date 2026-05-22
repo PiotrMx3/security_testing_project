@@ -1,64 +1,90 @@
 ﻿using Microsoft.Extensions.Configuration;
-using System.Net.Http.Headers;
+using System;
+using System.Net.Http;
 using System.Net.Http.Json;
+using System.Threading.Tasks;
 
 namespace DungeonGame.Security
 {
+    /// <summary>
+    /// Service die verantwoordelijk is voor het controleren van kamersleutels bij de API en het initiëren van decryptie.
+    /// </summary>
     public class RoomUnlockService
     {
-        // Hiermee lezen we waarden uit appsettings.json
         private readonly IConfiguration _configuration;
-
-        // Hiermee maken we HTTP-calls naar de API
         private readonly HttpClient _httpClient;
 
-        // Constructor krijgt configuration en HttpClient binnen
+        /// <summary>
+        /// Initialiseert een nieuwe instantie van de <see cref="RoomUnlockService"/> klasse.
+        /// </summary>
+        /// <param name="configuration">De configuratie om de verwachte hashes uit te lezen.</param>
+        /// <param name="httpClient">De (beveiligde) HTTP-client voor API-communicatie.</param>
         public RoomUnlockService(IConfiguration configuration, HttpClient httpClient)
         {
             _configuration = configuration;
             _httpClient = httpClient;
         }
 
-        // Methode die controleert of een room unlocked mag worden +jwt token controle
-        public async Task<string> DecryptRoomAsync(string roomId, string encryptedFilePath, string passphrase, string jwtToken)
+        /// <summary>
+        /// SEC-13/15: Haalt de keyshare op via de beveiligde API, controleert de passphrase via een hash,
+        /// en ontsleutelt het lokale .enc bestand bij succes.
+        /// </summary>
+        /// <param name="roomId">Het unieke ID van de kamer.</param>
+        /// <param name="passphrase">De door de speler ingevoerde passphrase.</param>
+        /// <returns>De ontsleutelde omschrijving van de kamer, of null als de toegang geweigerd is.</returns>
+        public async Task<string?> UnlockAndDecryptRoomAsync(string roomId, string passphrase)
         {
-            // 1. JWT meegeven
-            _httpClient.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", jwtToken);
+            try
+            {
+                Console.WriteLine($"\n--- [DEBUG START] ONTSLEUTELING VOOR: {roomId} ---");
 
-            // 2. Keyshare ophalen via API
-            var response = await _httpClient
-                .GetFromJsonAsync<KeyShareResponse>(
-                    $"https://localhost:7100/api/rooms/{roomId}/keyshare");
+                // 1. Controleer de API-verbinding en keyshare
+                var response = await _httpClient.GetFromJsonAsync<KeyShareResponse>($"api/rooms/{roomId}/keyshare");
 
-            if (response == null || string.IsNullOrWhiteSpace(response.KeyShare))
-                throw new InvalidOperationException("Keyshare kon niet opgehaald worden.");
-
-            // 3. AES-key maken
-            byte[] aesKey = HashService.ComputeAesKey(response.KeyShare, passphrase);
-
-            // 4. .enc-bestand lezen
-            byte[] encryptedData = await File.ReadAllBytesAsync(encryptedFilePath);
-
-            // 5. Decrypt proberen
-            // Bij verkeerde passphrase gooit deze normaal een CryptographicException
-            return AesEncryptionService.Decrypt(encryptedData, aesKey);
-        }
-        public async Task<string> LoginAsync(string userName, string password)
-        {
-            var response = await _httpClient.PostAsJsonAsync(
-                "https://localhost:7100/account/login",
-                new
+                if (response == null || string.IsNullOrWhiteSpace(response.KeyShare))
                 {
-                    userName,
-                    password
-                });
+                    Console.WriteLine("[DEBUG] FOUT: De API stuurde een lege of ongeldige Keyshare terug!");
+                    return null;
+                }
+                Console.WriteLine($"[DEBUG] Keyshare ontvangen van API: '{response.KeyShare}'");
 
-            response.EnsureSuccessStatusCode();
+                // 2. Controleer het inlezen van appsettings.json
+                var expectedHash = _configuration[$"ExpectedHash:{roomId}"];
+                Console.WriteLine($"[DEBUG] Verwachte hash uit appsettings:  '{expectedHash}'");
 
-            var result = await response.Content.ReadFromJsonAsync<LoginResponse>();
+                if (string.IsNullOrWhiteSpace(expectedHash))
+                {
+                    Console.WriteLine($"[DEBUG] FOUT: De sleutel 'ExpectedHash:{roomId}' kon NIET worden gevonden in appsettings.json! Bestaat het bestand wel in de build-map?");
+                    return null;
+                }
 
-            return result?.Token ?? throw new InvalidOperationException("Geen token ontvangen.");
+                // 3. Controleer de berekende hash van de speler
+                var computedHash = HashService.ComputeHash(response.KeyShare, passphrase);
+                Console.WriteLine($"[DEBUG] Jouw berekende hash lokaal:       '{computedHash}'");
+
+                // 4. De vergelijking
+                if (computedHash.Equals(expectedHash, StringComparison.OrdinalIgnoreCase))
+                {
+                    Console.WriteLine("[DEBUG] MATCH! Hashes zijn gelijk. Starten van decryptie...");
+                    string decryptedContent = AesEncryptionService.DecryptRoomFile(roomId, response.KeyShare, passphrase);
+                    Console.WriteLine($"[DEBUG] Resultaat uit decryptor: '{decryptedContent}'");
+                    return decryptedContent;
+                }
+
+                Console.WriteLine("[DEBUG] FOUT: De berekende hash en verwachte hash matchen NIET!");
+                Console.WriteLine("--- [DEBUG EIND] ---\n");
+                return null;
+            }
+            catch (HttpRequestException ex)
+            {
+                Console.WriteLine($"[Netwerk Fout] Kan geen veilige verbinding maken met de sleutel-server: {ex.Message}");
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[Fout] Probleem bij het ontgrendelen: {ex.Message}");
+                return null;
+            }
         }
 
         public async Task RegisterAsync(string userName, string email, string password)
@@ -74,21 +100,16 @@ namespace DungeonGame.Security
 
         }
 
-
-        // Klasse die overeenkomt met de JSON response van de API
+        /// <summary>
+        /// Hulpklasse (Data Transfer Object) die overeenkomt met de JSON-response van de GetRoomKeyShare API.
+        /// </summary>
         public class KeyShareResponse
         {
-            // Room identifier
+            /// <summary>Het unieke ID van de opgevraagde kamer.</summary>
             public string RoomId { get; set; } = "";
 
-            // Keyshare afkomstig van API
+            /// <summary>De cryptografische keyshare afkomstig van de database/API.</summary>
             public string KeyShare { get; set; } = "";
         }
-
-        public class LoginResponse
-        {
-            public string Token { get; set; } = "";
-        }
     }
-
 }

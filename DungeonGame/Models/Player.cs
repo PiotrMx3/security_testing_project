@@ -1,3 +1,5 @@
+using DungeonGame.Interfaces;
+
 namespace DungeonGame
 {
     public class Player : IPlayer

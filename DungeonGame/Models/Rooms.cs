@@ -26,10 +26,22 @@ namespace DungeonGame
 
         }
 
-        public bool Move(Direction direction, IPlayer player)
+        /// <summary>
+        /// Verwerkt de verplaatsing van de speler tussen kamers.
+        /// </summary>
+        /// <param name="direction">De gekozen richting.</param>
+        /// <param name="player">De speler die zich verplaatst.</param>
+        /// <param name="authService">De authenticatie-dienst voor rol-gebaseerde toegang (SEC-14).</param>
+        /// <returns>True als de verplaatsing is gelukt.</returns>
+        public bool Move(Direction direction, IPlayer player, IAuthService? authService)
         {
-            // Check: monster blocks exit (leave monster room while alive = death)
-            if (CurrentRoom.BlockExitIfMonsterAlive
+            // SEC-14: Als een Admin 'noclip' heeft, negeert hij ook de blokkade door monsters?
+            // In de meeste games betekent noclip dat je overal langs mag. 
+            // Wil je dat de Admin ook veilig langs monsters kan? Dan voegen we dit toe:
+            bool isAdmin = authService?.UserRole == "Admin";
+
+            // Check: monster blocks exit
+            if (!isAdmin && CurrentRoom.BlockExitIfMonsterAlive
                 && CurrentRoom.Monster != null
                 && CurrentRoom.Monster.IsAlive)
             {
@@ -41,17 +53,21 @@ namespace DungeonGame
             if (!CurrentRoom.HasExit(direction))
                 return false;
 
+            // Hier wordt de volgende kamer bepaald uit de Dictionary van de huidige kamer
             IRoom nextRoom = CurrentRoom.Exits[direction];
 
-            // Check: room is locked and player has no key
-            if (!nextRoom.CanEnter(player.Inventory))
+            // SEC-14: Check of de kamer toegankelijk is. 
+            // We geven nu de authService mee zodat Admins zonder sleutel naar binnen mogen.
+            if (!nextRoom.CanEnter(player.Inventory, authService))
+            {
                 return false;
+            }
 
-            // Move player to new room
+            // Verplaats de speler
             CurrentRoom = nextRoom;
 
-            // Check: deadly room = instant death
-            if (CurrentRoom.IsDeadly)
+            // Check: deadly room = instant death (ook voor Admins, tenzij je noclip nog verder trekt)
+            if (!isAdmin && CurrentRoom.IsDeadly)
             {
                 player.Health = 0;
                 return true;

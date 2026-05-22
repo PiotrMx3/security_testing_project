@@ -1,3 +1,6 @@
+using DungeonGame.Interfaces;
+using DungeonGame.Services;
+
 namespace DungeonGame.Test;
 
 [TestFixture]
@@ -11,6 +14,7 @@ public class MonsterRoomIntegrationTests
         var monsterRoom = new Room("Monster room", "testing", false, false, null,true); 
         var monster = new Monster("Orc", 1, 0, false);
         var player = new Player("Testhero", 100);
+        var authService = new AuthService();
         monsterRoom.Monster = monster;
         monsterRoom.AddExit(Direction.South, previousRoom);
         previousRoom.AddExit(Direction.North,monsterRoom);
@@ -18,7 +22,7 @@ public class MonsterRoomIntegrationTests
 
         //act
         rooms.Fight(player);
-        bool result = rooms.Move(Direction.South, player);
+        bool result = rooms.Move(Direction.South, player, authService);
 
         //assert
 

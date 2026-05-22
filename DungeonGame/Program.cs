@@ -1,5 +1,12 @@
-﻿using DungeonGame.Security;
+﻿using DungeonGame.Infrastructure;
+using DungeonGame.Interfaces;
+using DungeonGame.Security;
+using DungeonGame.Services;
+using DungeonGame.UI;
 using Microsoft.Extensions.Configuration;
+using System;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace DungeonGame
 {
@@ -7,6 +14,75 @@ namespace DungeonGame
     {
         static async Task Main(string[] args)
         {
+            // ===================================================================
+            // SEC-13: LIVE DIAGNOSE GENERATOR CODE
+            // ===================================================================
+            // NOTITIE VOOR DE CO工程师 (COLLEGA): Dit blok is puur bedoeld voor lokaal testen/seeden.
+            // Het genereert de initiële .enc bestanden met de juiste AES-256 encryptie en IV-headers.
+            // Zodra de bestanden definitief in de broncode-map staan, kan dit hele blok weggesurft worden.
+            /*
+            System.IO.Directory.CreateDirectory("Rooms");
+             
+            string text1 = "You have entered the legendary treasure room! A massive golden chest sparkles in the torchlight, overflowing with gems and ancient artifacts. You made it!";
+            string result1 = AesEncryptionService.EncryptRoomFile("room1", "9F57924B", "GeheimKamer1", text1);
+            Console.WriteLine("ROOM 1 GENERATION: " + result1);
+            Console.WriteLine("ABSOLUTE PATH 1: " + System.IO.Path.GetFullPath("Rooms/room1.enc"));
+            
+            string text2 = "You enter a terrifying, pitch-black cave. The air is thick with smoke, and a colossal red Dragon stands in the center, guarding the path south!";
+            string result2 = AesEncryptionService.EncryptRoomFile("room2", "3421FEBC", "GeheimKamer2", text2);
+            Console.WriteLine("ROOM 2 GENERATION: " + result2);
+            Console.WriteLine("ABSOLUTE PATH 2: " + System.IO.Path.GetFullPath("Rooms/room2.enc"));
+            
+            Console.WriteLine("\nDruk op ENTER om de game echt te starten...");
+            Console.ReadLine();
+            */
+            // ===================================================================
+
+            // ===================================================================
+            // START VAN DE ECHTE GAME LOGICA & DEPENDENCY INJECTION PIPELINE
+            // ===================================================================
+
+            // 1. Initialiseer de configuratie als allereerste stap.
+            // We hebben deze builder naar voren gehaald zodat we de API BaseUrl dynamisch 
+            // kunnen uitlezen vóórdat de HttpClient-pipeline wordt opgebouwd.
+            var configuration = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json", optional: false)
+                .Build();
+
+            // 2. Verkrijg de API URL uit de lokale configuratie.
+            // We gebruiken een fallback naar poort 5000 (HTTP) om te matchen met de lokale API-instellingen van het team.
+            string apiUrl = configuration["ApiSettings:BaseUrl"] ?? "http://localhost:5000/";
+
+            // 3. Instantieer de AuthService.
+            // OPGELET: We maken deze service bewust leeg aan zonder HttpClient om een circulaire 
+            // dependency te voorkomen (AuthService -> HttpClient -> AuthHandler -> AuthService).
+            var authService = new AuthService();
+
+            // 4. Bouw de HTTP Message Handler Pipeline.
+            // De 'AuthHandler' acteert als onze custom HTTP middleware op de client. Hij vangt elk uitgaand 
+            // verzoek op en injecteert automatisch de JWT Bearer token zodra de speler is ingelogd (SEC-12).
+            var authHandler = new AuthHandler(authService)
+            {
+                InnerHandler = new HttpClientHandler()
+                {
+                    // SSL-bypass guard: Voorkomt dat zelfondertekende certificaten op localhost de HttpClient direct laten crashen.
+                    ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
+                }
+            };
+
+            // 5. Configureer de centrale HttpClient.
+            // Door de 'authHandler' hier als root-handler mee te geven, forceren we dat áLLE uitgaande API-calls 
+            // (inclusief keyshare opvragingen) automatisch geauthenticeerd zijn via de middleware pipeline.
+            var httpClient = new HttpClient(authHandler)
+            {
+                BaseAddress = new Uri(apiUrl)
+            };
+
+            // 6. Los de circulaire dependency handmatig op (Property Injection).
+            // Nu de HttpClient volledig is geconfigureerd met de middleware handler, koppelen we hem terug aan de AuthService.
+            authService.SetClient(httpClient);
+
+            // 7. Render de ASCII Art & Introductie
             Console.WriteLine(
                 "═══════════════════════════════════════════\n" +
                 "        DUNGEON OF NO RETURN\n" +
@@ -21,83 +97,40 @@ namespace DungeonGame
                 "           fight | quit\n" +
                 "═══════════════════════════════════════════");
 
-            var configuration = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json", optional: false)
-                .Build();
+            // SEC-11: Toegangspoort & Identity Management.
+            // We blokkeren de start van de game-loop volledig totdat de gebruiker succesvol is ingelogd 
+            // of een geldig nieuw account heeft geregistreerd via de interactive UI flow.
+            IAuthService finalAuth = await LoginFlow.Execute(authService);
 
+            // SEC-12: Instantieer de RoomUnlockService.
+            // We geven de beveiligde httpClient mee zodat de service de keyshares kan opvragen bij de API.
             var roomUnlockService = new RoomUnlockService(
                 configuration,
-                new HttpClient());
+                httpClient);
 
-            Console.Write(" Enter your name, brave soul: ");
-            string playerName = Console.ReadLine() ?? "DefaultPlayer";
+            // 8. Initialiseer de core Game State.
+            Game game = new Game(finalAuth.Username ?? "Player", finalAuth);
 
-            Console.WriteLine("1. Login");
-            Console.WriteLine("2. Register");
-            Console.Write("> ");
+            Console.WriteLine($"\nWelcome, {finalAuth.Username}! Type 'help' for commands.\n");
 
-            string choice = Console.ReadLine() ?? "";
-
-            string jwtToken = "";
-
-            if (choice == "2")
-            {
-                Console.Write("Choose username: ");
-                string registerUser = Console.ReadLine() ?? "";
-
-                Console.Write("Choose email: ");
-                string registerEmail = Console.ReadLine() ?? "";
-
-                Console.Write("Choose password: ");
-                string registerPassword = Console.ReadLine() ?? "";
-
-                try
-                {
-                    await roomUnlockService.RegisterAsync(
-                        registerUser,
-                        registerEmail,
-                        registerPassword);
-
-                    Console.WriteLine("Registration successful.\n");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Registration failed: {ex.Message}");
-                    return;
-                }
-            }
-
-            Console.Write("Username: ");
-            string userName = Console.ReadLine() ?? "";
-
-            Console.Write("Password: ");
-            string password = Console.ReadLine() ?? "";
-
-            try
-            {
-                jwtToken = await roomUnlockService.LoginAsync(userName, password);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Login failed: {ex.Message}");
-                return;
-            }
-
-            Game game = new Game(playerName);
-
-            Console.WriteLine($"\nWelcome, {playerName}! Type 'help' for commands.\n");
-
+            // ===================================================================
+            // CORE GAME LOOP
+            // ===================================================================
             while (!game.IsGameOver())
             {
                 Console.Write("> ");
                 string input = Console.ReadLine() ?? "";
                 Console.WriteLine();
 
-                await HandleCommand(input, game, roomUnlockService, jwtToken);
+                // Verwerk het commando asynchroon. Alle sub-logica omtrent beweging,
+                // gevechten en cryptografie is gedelegeerd naar de Command Handler.
+                await HandleCommand(input, game, roomUnlockService);
 
+                // Controleer na elke speleractie of de winconditie is getriggerd.
                 game.CheckWin();
             }
 
+            // 9. Afhandeling van de Game-Over State
             if (game.Player.IsWinner)
             {
                 Console.WriteLine($"\n{game.Player.Name}, you escaped the dungeon! You win!");
@@ -108,8 +141,13 @@ namespace DungeonGame
             }
         }
 
-        private static async Task HandleCommand( string input, Game game, RoomUnlockService roomUnlockService, string jwtToken)
+        /// <summary>
+        /// Gecentraliseerde Command Handler. Verwerkt console-invoer en koppelt deze 
+        /// direct aan de bijbehorende business- en securitylogica.
+        /// </summary>
+        private static async Task HandleCommand(string input, Game game, RoomUnlockService roomUnlockService)
         {
+            // Splits de invoer op in een 'command' (actie) en 'parts' (argument/richting/item)
             string[] parts = input.Trim().Split(" ", 2);
             string command = parts[0].ToLower();
 
@@ -129,6 +167,7 @@ namespace DungeonGame
             {
                 Direction? direction = DirectionHelper.Parse(parts[1]);
 
+                // Validatie-guard: Bestaat de richting of de exit überhaupt?
                 if (direction == null || !game.Rooms.CurrentRoom.HasExit(direction.Value))
                 {
                     Console.WriteLine("You can't go that way!");
@@ -137,32 +176,48 @@ namespace DungeonGame
 
                 IRoom nextRoom = game.Rooms.CurrentRoom.Exits[direction.Value];
 
+                // Cryptografische Barrière Controle (SEC-13 / SEC-14)
                 if (nextRoom.IsEncrypted)
                 {
-                    Console.WriteLine("This room is encrypted.");
-                    Console.Write("Enter passphrase: ");
-
-                    string passphrase = Console.ReadLine() ?? "";
-
-                    string roomId = nextRoom.EncryptionRoomId ?? "";
-                    string encryptedFilePath = nextRoom.EncryptedFilePath ?? "";
-
-                    try
+                    // SEC-14: Admin Privilege Escalation / Noclip Bypass.
+                    // Als de ingelogde gebruiker de rol 'Admin' heeft, mag hij de fysieke barrière negeren.
+                    // De content in de kamer blijft echter cryptografisch intact totdat de sleutel matcht.
+                    if (game.AuthService?.UserRole == "Admin")
                     {
-                        string decryptedText = await roomUnlockService.DecryptRoomAsync(roomId, encryptedFilePath, passphrase, jwtToken);
-
-                        Console.WriteLine(decryptedText);
+                        Console.WriteLine("[Admin Noclip] As an admin, you bypass the encryption barrier and enter the room. Content remains encrypted.");
                     }
-                    catch (System.Security.Cryptography.CryptographicException)
+                    else
                     {
-                        Console.WriteLine("Foute passphrase. De kamer blijft vergrendeld.");
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Kamer kon niet ontsleuteld worden: {ex.Message}");
+                        Console.WriteLine("This room is encrypted.");
+                        Console.Write("Enter passphrase: ");
+
+                        string passphrase = Console.ReadLine() ?? "";
+
+                        // SEC-13 & SEC-15: Symmetrische Ontgrendeling & Foutafhandeling.
+                        // We schieten de roomId en de ingetypte passphrase naar de service. Deze haalt de keyshare 
+                        // op via de API, berekent de SHA256-controlehash, vergelijkt deze met de verwachte hash 
+                        // uit de appsettings en voert de AES-256 decryptie uit op het lokale .enc bestand.
+                        string? decryptedText = await roomUnlockService.UnlockAndDecryptRoomAsync(
+                            nextRoom.EncryptionRoomId!,
+                            passphrase);
+
+                        // Veilige afbreking (SEC-15): Bij een foute passphrase, netwerkfout of corrupte padding 
+                        // geeft de service null/fout terug. We blokkeren de speler direct zonder te crashen.
+                        if (decryptedText == null || decryptedText.StartsWith("[Fout]") || decryptedText.StartsWith("[Security]"))
+                        {
+                            Console.WriteLine("Access denied. Wrong passphrase or server error.");
+                            return;
+                        }
+
+                        // SEC-13: Decryptie Geslaagd!
+                        // De ontsleutelde tekst overschrijft de cryptische bytes en de vlag gaat permanent uit.
+                        nextRoom.Description = decryptedText;
+                        nextRoom.IsEncrypted = false;
+                        Console.WriteLine("Room successfully decrypted!");
                     }
                 }
 
+                // Voer de daadwerkelijke fysieke verplaatsing van de speler uit in de engine
                 bool moved = game.Move(parts[1]);
 
                 if (!game.Player.IsAlive)

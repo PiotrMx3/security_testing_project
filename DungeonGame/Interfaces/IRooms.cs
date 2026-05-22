@@ -1,4 +1,4 @@
-﻿namespace DungeonGame
+﻿namespace DungeonGame.Interfaces
 {
     public interface IRooms
     {
@@ -6,6 +6,6 @@
         IRoom CurrentRoom { get; set; }
 
         bool Fight(IPlayer player);
-        bool Move(Direction direction, IPlayer player);
+        bool Move(Direction direction, IPlayer player, IAuthService? authService);
     }
 }
