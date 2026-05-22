@@ -73,7 +73,19 @@ namespace DungeonGame.Security
                 return null;
             }
         }
-    }
+
+        public async Task RegisterAsync(string userName, string email, string password)
+        {
+            var response = await _httpClient.PostAsJsonAsync(
+                "https://localhost:7100/account/register",
+                new
+                {
+                    userName,
+                    email,
+                    password
+                });
+
+        }
 
     /// <summary>
     /// Hulpklasse (Data Transfer Object) die overeenkomt met de JSON-response van de GetRoomKeyShare API.

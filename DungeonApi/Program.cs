@@ -168,17 +168,27 @@ namespace DungeonApi
 
                     var result = await userManager.CreateAsync(user, model.Password);
 
-                    var roleResult = await userManager.AddToRoleAsync(user, AppRoles.User);
-
-                    if (!result.Succeeded || !roleResult.Succeeded)
+                    if (!result.Succeeded)
                     {
                         var errors = result.Errors.ToDictionary(
                             e => e.Code,
                             e => new[] { e.Description });
+
                         return TypedResults.ValidationProblem(errors);
                     }
 
-                    var token = tokenService.GenerateTokenAsync(user);
+                    var roleResult = await userManager.AddToRoleAsync(user, AppRoles.User);
+
+                    if (!roleResult.Succeeded)
+                    {
+                        var errors = roleResult.Errors.ToDictionary(
+                            e => e.Code,
+                            e => new[] { e.Description });
+
+                        return TypedResults.ValidationProblem(errors);
+                    }
+
+                    var token = await tokenService.GenerateTokenAsync(user);
                     return TypedResults.Ok<object>(new { token });
                 })
             .WithName("Register")

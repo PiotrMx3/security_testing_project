@@ -66,7 +66,7 @@ namespace DungeonGame
                 string input = Console.ReadLine() ?? "";
                 Console.WriteLine();
 
-                await HandleCommand(input, game, roomUnlockService);
+                await HandleCommand(input, game, roomUnlockService, jwtToken);
 
                 game.CheckWin();
             }
@@ -81,7 +81,7 @@ namespace DungeonGame
             }
         }
 
-        private static async Task HandleCommand(string input, Game game, RoomUnlockService roomUnlockService)
+        private static async Task HandleCommand( string input, Game game, RoomUnlockService roomUnlockService, string jwtToken)
         {
             string[] parts = input.Trim().Split(" ", 2);
             string command = parts[0].ToLower();

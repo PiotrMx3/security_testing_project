@@ -29,6 +29,7 @@ namespace DungeonGame
         public bool BlockExitIfMonsterAlive { get; set; }
         public bool IsEncrypted { get; set; }
         public string? EncryptionRoomId { get; set; }
+        public string? EncryptedFilePath { get; set; }
 
         /// <summary>
         /// Initialiseert een nieuwe instantie van de <see cref="Room"/> klasse.
