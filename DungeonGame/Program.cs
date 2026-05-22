@@ -15,30 +15,6 @@ namespace DungeonGame
         static async Task Main(string[] args)
         {
             // ===================================================================
-            // SEC-13: LIVE DIAGNOSE GENERATOR CODE
-            // ===================================================================
-            // NOTITIE VOOR DE CO工程师 (COLLEGA): Dit blok is puur bedoeld voor lokaal testen/seeden.
-            // Het genereert de initiële .enc bestanden met de juiste AES-256 encryptie en IV-headers.
-            // Zodra de bestanden definitief in de broncode-map staan, kan dit hele blok weggesurft worden.
-            /*
-            System.IO.Directory.CreateDirectory("Rooms");
-             
-            string text1 = "You have entered the legendary treasure room! A massive golden chest sparkles in the torchlight, overflowing with gems and ancient artifacts. You made it!";
-            string result1 = AesEncryptionService.EncryptRoomFile("room1", "9F57924B", "GeheimKamer1", text1);
-            Console.WriteLine("ROOM 1 GENERATION: " + result1);
-            Console.WriteLine("ABSOLUTE PATH 1: " + System.IO.Path.GetFullPath("Rooms/room1.enc"));
-            
-            string text2 = "You enter a terrifying, pitch-black cave. The air is thick with smoke, and a colossal red Dragon stands in the center, guarding the path south!";
-            string result2 = AesEncryptionService.EncryptRoomFile("room2", "3421FEBC", "GeheimKamer2", text2);
-            Console.WriteLine("ROOM 2 GENERATION: " + result2);
-            Console.WriteLine("ABSOLUTE PATH 2: " + System.IO.Path.GetFullPath("Rooms/room2.enc"));
-            
-            Console.WriteLine("\nDruk op ENTER om de game echt te starten...");
-            Console.ReadLine();
-            */
-            // ===================================================================
-
-            // ===================================================================
             // START VAN DE ECHTE GAME LOGICA & DEPENDENCY INJECTION PIPELINE
             // ===================================================================
 
