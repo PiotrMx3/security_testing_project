@@ -50,6 +50,11 @@ namespace DungeonGame.Interfaces
         Task<bool> LoginAsync(string username, string password);
 
         /// <summary>
+        /// Registreert een nieuwe speler in het systeem (SEC-11).
+        /// </summary>
+        Task<bool> RegisterAsync(string username, string email, string password);
+
+        /// <summary>
         /// Configureert de interne HTTP-client voor communicatie met de beveiligde API-endpoints.
         /// </summary>
         /// <param name="client">De HttpClient instantie, bij voorkeur geconfigureerd met een AuthHandler.</param>

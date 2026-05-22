@@ -36,7 +36,7 @@ namespace DungeonGame.Services
         /// <summary>
         /// Ontwikkelvlag om te kunnen testen zonder dat de Minimal API (Block 1) draait.
         /// </summary>
-        private bool _useMock = true;
+        private bool _useMock = false;
 
         /// <summary>
         /// Initialiseert een nieuwe instantie van de <see cref="AuthService"/>.
@@ -79,16 +79,23 @@ namespace DungeonGame.Services
                     UserRole = "Admin"; // Maakt Admin noclip (SEC-14) testbaar.
                     return true;
                 }
+                if (username == "player" && password == "player123")
+                {
+                    Token = "mock-jwt-token-player";
+                    Username = username;
+                    UserRole = "Player";
+                    return true;
+                }
                 return false;
             }
 
             try
             {
                 // SEC-15: Controle op aanwezigheid van HttpClient om runtime-crashes te voorkomen.
-                if (_httpClient == null) throw new Exception("HttpClient niet geconfigureerd.");
+                if (_httpClient == null) throw new InvalidOperationException("HttpClient niet geconfigureerd.");
 
                 // SEC-11: POST-verzoek naar de API. Het wachtwoord wordt op de server gehashed met SHA-256.
-                var response = await _httpClient.PostAsJsonAsync("api/auth/login", new { username, password });
+                var response = await _httpClient.PostAsJsonAsync("account/login", new { username, password });
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -111,6 +118,43 @@ namespace DungeonGame.Services
         }
 
         /// <summary>
+        /// SEC-11: Handelt de registratie van een nieuwe speler af via de API.
+        /// </summary>
+        public async Task<bool> RegisterAsync(string username, string email, string password)
+        {
+            // SEC-15: Altijd input opschonen
+            username = username.Trim();
+            email = email.Trim();
+            password = password.Trim();
+
+            if (_useMock)
+            {
+                Console.WriteLine($"[Mock] Gebruiker '{username}' succesvol geregistreerd!");
+                return true;
+            }
+
+            try
+            {
+                if (_httpClient == null) throw new InvalidOperationException("HttpClient niet geconfigureerd.");
+
+                // Matcht exact met de 'AddOrUpdateAppUserModel' DTO van de DungeonApi
+                var response = await _httpClient.PostAsJsonAsync("account/register", new
+                {
+                    UserName = username,
+                    Email = email,
+                    Password = password
+                });
+
+                return response.IsSuccessStatusCode;
+            }
+            catch (Exception)
+            {
+                // SEC-15: Voorkom crashes bij netwerkproblemen
+                return false;
+            }
+        }
+
+        /// <summary>
         /// Verwijdert de huidige sessiegegevens en logt de speler uit.
         /// </summary>
         public void Logout()
@@ -126,8 +170,8 @@ namespace DungeonGame.Services
     /// </summary>
     public class LoginResponse
     {
-        public string Token { get; set; }
-        public string Username { get; set; }
-        public string Role { get; set; }
+        public string Token { get; set; } = string.Empty;
+        public string Username { get; set; } = string.Empty;
+        public string Role { get; set; } = string.Empty;
     }
 }

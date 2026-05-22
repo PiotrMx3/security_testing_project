@@ -36,39 +36,52 @@ namespace DungeonGame.Security
         {
             try
             {
-                // SEC-12: Relatieve URL zodat de call via BaseAddress én de AuthHandler (JWT) loopt
+                Console.WriteLine($"\n--- [DEBUG START] ONTSLEUTELING VOOR: {roomId} ---");
+
+                // 1. Controleer de API-verbinding en keyshare
                 var response = await _httpClient.GetFromJsonAsync<KeyShareResponse>($"api/rooms/{roomId}/keyshare");
 
                 if (response == null || string.IsNullOrWhiteSpace(response.KeyShare))
+                {
+                    Console.WriteLine("[DEBUG] FOUT: De API stuurde een lege of ongeldige Keyshare terug!");
                     return null;
+                }
+                Console.WriteLine($"[DEBUG] Keyshare ontvangen van API: '{response.KeyShare}'");
 
-                // Haal de verwachte hash op uit appsettings.json van de client
+                // 2. Controleer het inlezen van appsettings.json
                 var expectedHash = _configuration[$"ExpectedHash:{roomId}"];
+                Console.WriteLine($"[DEBUG] Verwachte hash uit appsettings:  '{expectedHash}'");
+
                 if (string.IsNullOrWhiteSpace(expectedHash))
+                {
+                    Console.WriteLine($"[DEBUG] FOUT: De sleutel 'ExpectedHash:{roomId}' kon NIET worden gevonden in appsettings.json! Bestaat het bestand wel in de build-map?");
                     return null;
+                }
 
-                // Genereer de controle-hash op basis van de API-keyshare en gebruikersinput
+                // 3. Controleer de berekende hash van de speler
                 var computedHash = HashService.ComputeHash(response.KeyShare, passphrase);
+                Console.WriteLine($"[DEBUG] Jouw berekende hash lokaal:       '{computedHash}'");
 
-                // Vergelijk de hashes om te zien of het wachtwoord correct is
+                // 4. De vergelijking
                 if (computedHash.Equals(expectedHash, StringComparison.OrdinalIgnoreCase))
                 {
-                    // SEC-13: Wachtwoord is correct! Roep de DecryptionService aan om het lokale .enc bestand te kraken
-                    string decryptedContent = DecryptionService.DecryptRoomFile(roomId, response.KeyShare, passphrase);
+                    Console.WriteLine("[DEBUG] MATCH! Hashes zijn gelijk. Starten van decryptie...");
+                    string decryptedContent = AesEncryptionService.DecryptRoomFile(roomId, response.KeyShare, passphrase);
+                    Console.WriteLine($"[DEBUG] Resultaat uit decryptor: '{decryptedContent}'");
                     return decryptedContent;
                 }
 
-                return null; // Wachtwoord was fout
+                Console.WriteLine("[DEBUG] FOUT: De berekende hash en verwachte hash matchen NIET!");
+                Console.WriteLine("--- [DEBUG EIND] ---\n");
+                return null;
             }
-            catch (HttpRequestException)
+            catch (HttpRequestException ex)
             {
-                // SEC-15: Server offline of 401/403/500 error opvangen zonder dat de game crasht
-                Console.WriteLine("[Netwerk Fout] Kan geen veilige verbinding maken met de sleutel-server.");
+                Console.WriteLine($"[Netwerk Fout] Kan geen veilige verbinding maken met de sleutel-server: {ex.Message}");
                 return null;
             }
             catch (Exception ex)
             {
-                // SEC-15: Catch-all om onverwachte runtime crashes te voorkomen
                 Console.WriteLine($"[Fout] Probleem bij het ontgrendelen: {ex.Message}");
                 return null;
             }
@@ -87,15 +100,16 @@ namespace DungeonGame.Security
 
         }
 
-    /// <summary>
-    /// Hulpklasse (Data Transfer Object) die overeenkomt met de JSON-response van de GetRoomKeyShare API.
-    /// </summary>
-    public class KeyShareResponse
-    {
-        /// <summary>Het unieke ID van de opgevraagde kamer.</summary>
-        public string RoomId { get; set; } = "";
+        /// <summary>
+        /// Hulpklasse (Data Transfer Object) die overeenkomt met de JSON-response van de GetRoomKeyShare API.
+        /// </summary>
+        public class KeyShareResponse
+        {
+            /// <summary>Het unieke ID van de opgevraagde kamer.</summary>
+            public string RoomId { get; set; } = "";
 
-        /// <summary>De cryptografische keyshare afkomstig van de database/API.</summary>
-        public string KeyShare { get; set; } = "";
+            /// <summary>De cryptografische keyshare afkomstig van de database/API.</summary>
+            public string KeyShare { get; set; } = "";
+        }
     }
 }
