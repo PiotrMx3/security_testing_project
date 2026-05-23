@@ -15,15 +15,45 @@ namespace DungeonGame
         static async Task Main(string[] args)
         {
             // ===================================================================
-            // START VAN DE ECHTE GAME LOGICA & DEPENDENCY INJECTION PIPELINE
+            // 1. INITIALISEER DE CONFIGURATIE (Nu als eerste stap!)
             // ===================================================================
-
-            // 1. Initialiseer de configuratie als allereerste stap.
-            // We hebben deze builder naar voren gehaald zodat we de API BaseUrl dynamisch 
-            // kunnen uitlezen vóórdat de HttpClient-pipeline wordt opgebouwd.
             var configuration = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json", optional: false)
                 .Build();
+
+            // ===================================================================
+            // SEC-13: AUTOMATISCHE KAMER INITIALISATIE (SILENT SEEDER)
+            // ===================================================================
+            string roomsFolder = "Rooms";
+            string room1Path = Path.Combine(roomsFolder, "room1.enc");
+            string room2Path = Path.Combine(roomsFolder, "room2.enc");
+
+            if (!Directory.Exists(roomsFolder) || !File.Exists(room1Path) || !File.Exists(room2Path))
+            {
+                Directory.CreateDirectory(roomsFolder);
+
+                // Veilig de keys en passphrases uitlezen uit de gitignored appsettings.json
+                string key1 = configuration["SeedSettings:Room1:Key"] ?? "";
+                string pass1 = configuration["SeedSettings:Room1:Passphrase"] ?? "";
+                string key2 = configuration["SeedSettings:Room2:Key"] ?? "";
+                string pass2 = configuration["SeedSettings:Room2:Passphrase"] ?? "";
+
+                // Alleen genereren als de configuratie ook daadwerkelijk is ingevuld
+                if (!string.IsNullOrEmpty(key1) && !string.IsNullOrEmpty(pass1))
+                {
+                    string text1 = "You have entered the legendary treasure room! A massive golden chest sparkles in the torchlight, overflowing with gems and ancient artifacts. You made it!";
+                    AesEncryptionService.EncryptRoomFile("room1", key1, pass1, text1);
+                }
+
+                if (!string.IsNullOrEmpty(key2) && !string.IsNullOrEmpty(pass2))
+                {
+                    string text2 = "You enter a terrifying, pitch-black cave. The air is thick with smoke, and a colossal red Dragon stands in the center, guarding the path south!";
+                    AesEncryptionService.EncryptRoomFile("room2", key2, pass2, text2);
+                }
+            }
+            // ===================================================================
+            // START VAN DE ECHTE GAME LOGICA & DEPENDENCY INJECTION PIPELINE
+            // ===================================================================
 
             // 2. Verkrijg de API URL uit de lokale configuratie.
             // We gebruiken een fallback naar poort 5000 (HTTP) om te matchen met de lokale API-instellingen van het team.
