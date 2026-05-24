@@ -1,4 +1,4 @@
-using DungeonGame.Services;
+﻿using DungeonGame.Services;
 using DungeonGame.Interfaces;
 
 namespace DungeonGame
@@ -97,6 +97,25 @@ namespace DungeonGame
             return info;
         }
 
+        public string AboutMe()
+        {
+            // Check of de authenticatieservice wel aanwezig en ingelogd is
+            if (AuthService == null || !AuthService.IsLoggedIn)
+            {
+                return "Identity Status: Anonymous (Not logged in)";
+            }
+
+            // Bouw een strak overzicht van de actieve JWT-sessie van de speler
+            string info = "═══════════════════════════════════════════\n" +
+                          "             PLAYER PROFILE (SEC-11)       \n" +
+                          "═══════════════════════════════════════════\n";
+            info += $" Username: {AuthService.Username}\n";
+            info += $" Role:     {AuthService.UserRole}\n";
+            info += "═══════════════════════════════════════════";
+
+            return info;
+        }
+
         public string Help()
         {
             string info = "";
@@ -107,6 +126,7 @@ namespace DungeonGame
             info += "  go n|e|s|w        - move to another room\n";
             info += "  take <item name>  - pick up an item\n";
             info += "  fight             - fight the monster in this room\n";
+            info += "  about me          - your account details\n";
             info += "  quit              - stop the game\n";
             return info;
         }

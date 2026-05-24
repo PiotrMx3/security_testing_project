@@ -56,8 +56,8 @@ namespace DungeonGame
             // ===================================================================
 
             // 2. Verkrijg de API URL uit de lokale configuratie.
-            // We gebruiken een fallback naar poort 5000 (HTTP) om te matchen met de lokale API-instellingen van het team.
-            string apiUrl = configuration["ApiSettings:BaseUrl"] ?? "http://localhost:5000/";
+            // We gebruiken een fallback naar poort 7100 (HTTP) om te matchen met de lokale API-instellingen van het team.
+            string apiUrl = configuration["ApiSettings:BaseUrl"] ?? "https://localhost:7100/";
 
             // 3. Instantieer de AuthService.
             // OPGELET: We maken deze service bewust leeg aan zonder HttpClient om een circulaire 
@@ -168,6 +168,10 @@ namespace DungeonGame
             else if (command == "inventory")
             {
                 Console.WriteLine(game.ShowInventory());
+            }
+            else if (command == "about" && parts.Length == 2 && parts[1].ToLower() == "me")
+            {
+                Console.WriteLine(game.AboutMe());
             }
             else if (command == "go" && parts.Length == 2)
             {
