@@ -189,7 +189,8 @@ namespace DungeonApi
                     }
 
                     var token = await tokenService.GenerateTokenAsync(user);
-                    return TypedResults.Ok<object>(new { token });
+                    // Stuur ook hier direct de profielgegevens mee terug
+                    return TypedResults.Ok<object>(new { token, username = user.UserName, role = AppRoles.User });
                 })
             .WithName("Register")
             .WithOpenApi();
@@ -219,8 +220,14 @@ namespace DungeonApi
                     if (!result.Succeeded)
                         return TypedResults.Unauthorized();
 
+                    // Haal de rollen van de user op uit de database
+                    var roles = await userManager.GetRolesAsync(user);
+                    var role = roles.FirstOrDefault() ?? AppRoles.User;
+
                     var token = await tokenService.GenerateTokenAsync(user);
-                    return TypedResults.Ok<object>(new { token });
+
+                    // Stuur token, username én role terug zodat de client dit direct in-memory kan opslaan!
+                    return TypedResults.Ok<object>(new { token, username = user.UserName, role });
                 })
                 .WithName("Login")
                 .WithOpenApi();
@@ -252,7 +259,7 @@ namespace DungeonApi
             (ClaimsPrincipal user) =>
             {
                 var userName = user.FindFirstValue(ClaimTypes.Name);
-                var role = user.FindFirstValue(ClaimTypes.Role);
+                var role = user.FindFirstValue(ClaimTypes.Role) ?? user.FindFirstValue("role");
 
                 return TypedResults.Ok(new { userName, role });
             })
